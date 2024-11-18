@@ -8,8 +8,8 @@ import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.thread.BlockableEventLoop;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import sonar.fluxnetworks.api.FluxConstants;
 import sonar.fluxnetworks.api.device.IFluxDevice;
 import sonar.fluxnetworks.api.network.SecurityLevel;
@@ -225,6 +225,7 @@ public class ClientMessages {
             case Messages.S2C_DELETE_NETWORK -> onDeleteNetwork(payload, player, minecraft);
             case Messages.S2C_UPDATE_CONNECTIONS -> onUpdateConnections(payload, player, minecraft);
         }
+        payload.release();
     }
 
     private static void onDeviceBuffer(FriendlyByteBuf payload, Supplier<LocalPlayer> player,

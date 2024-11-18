@@ -8,11 +8,10 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.fml.util.thread.EffectiveSide;
-import net.minecraftforge.network.NetworkHooks;
+import net.neoforged.fml.util.thread.EffectiveSide;
 import sonar.fluxnetworks.api.device.IFluxProvider;
 import sonar.fluxnetworks.client.ClientCache;
-import sonar.fluxnetworks.common.capability.FluxPlayer;
+import sonar.fluxnetworks.common.data.FluxPlayerData;
 import sonar.fluxnetworks.common.connection.FluxMenu;
 import sonar.fluxnetworks.common.device.TileFluxStorage;
 
@@ -35,7 +34,7 @@ public class ItemAdminConfigurator extends Item {
             return InteractionResult.PASS;
         }
         if (player.isShiftKeyDown() &&
-                FluxPlayer.isPlayerSuperAdmin(player) &&
+                FluxPlayerData.isPlayerSuperAdmin((ServerPlayer) player) &&
                 context.getLevel().getBlockEntity(context.getClickedPos()) instanceof TileFluxStorage storage &&
                 storage.canPlayerAccess(player)) {
             storage.fillUp();
@@ -49,8 +48,9 @@ public class ItemAdminConfigurator extends Item {
     public InteractionResultHolder<ItemStack> use(@Nonnull Level level, @Nonnull Player player,
                                                   @Nonnull InteractionHand hand) {
         if (!level.isClientSide) {
-            NetworkHooks.openScreen((ServerPlayer) player,
-                    new Provider(), buf -> buf.writeBoolean(false));
+            player.openMenu(new Provider(), buf -> buf.writeBoolean(false));
+//            NetworkHooks.openScreen((ServerPlayer) player,
+//                    new Provider(), data -> data.writeBoolean(false));
         }
         return InteractionResultHolder.success(player.getItemInHand(hand));
     }

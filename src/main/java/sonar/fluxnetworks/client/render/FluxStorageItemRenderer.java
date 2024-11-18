@@ -6,21 +6,23 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.model.data.ModelData;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import sonar.fluxnetworks.api.FluxConstants;
+import sonar.fluxnetworks.api.FluxDataComponents;
 import sonar.fluxnetworks.client.ClientCache;
 import sonar.fluxnetworks.client.gui.basic.GuiFluxCore;
 import sonar.fluxnetworks.common.block.FluxStorageBlock;
+import sonar.fluxnetworks.common.data.FluxDataComponent;
 import sonar.fluxnetworks.common.util.FluxUtils;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 
 @OnlyIn(Dist.CLIENT)
 public class FluxStorageItemRenderer extends BlockEntityWithoutLevelRenderer {
@@ -35,9 +37,9 @@ public class FluxStorageItemRenderer extends BlockEntityWithoutLevelRenderer {
                              int packedLight, int packedOverlay) {
         int color; // 0xRRGGBB
         long energy;
-        CompoundTag rootTag = stack.getTag();
+        Optional<Integer> rootTag = stack.get(FluxDataComponents.FLUX_COLOR);
         if (rootTag != null) {
-            if (rootTag.getBoolean(FluxConstants.FLUX_COLOR)) {
+            if (rootTag.isEmpty()) {
                 // GUI display
                 Screen screen = Minecraft.getInstance().screen;
                 if (screen instanceof GuiFluxCore gui) {
@@ -45,23 +47,28 @@ public class FluxStorageItemRenderer extends BlockEntityWithoutLevelRenderer {
                 } else {
                     color = FluxConstants.INVALID_NETWORK_COLOR;
                 }
-                CompoundTag tag = stack.getTagElement(FluxConstants.TAG_FLUX_DATA);
-                if (tag != null) {
-                    energy = tag.getLong(FluxConstants.ENERGY);
+                FluxDataComponent data = stack.get(FluxDataComponents.FLUX_DATA);
+                if (data != null) {
+                    energy = data.getEnergy();
                 } else {
                     energy = 0;
                 }
             } else {
-                CompoundTag tag = stack.getTagElement(FluxConstants.TAG_FLUX_DATA);
-                if (tag != null) {
-                    if (tag.contains(FluxConstants.CLIENT_COLOR)) {
+                Optional<Integer> colorData = stack.get(FluxDataComponents.FLUX_COLOR);
+                FluxDataComponent data = stack.get(FluxDataComponents.FLUX_DATA);
+                if (colorData != null) {
+                    if (colorData.isPresent()) {
                         // TheOneProbe
-                        color = tag.getInt(FluxConstants.CLIENT_COLOR);
+                        color = colorData.get();
                     } else {
-                        // ItemStack inventory
-                        color = ClientCache.getNetwork(tag.getInt(FluxConstants.NETWORK_ID)).getNetworkColor();
+                        if (data != null) {
+                            // ItemStack inventory
+                            color = ClientCache.getNetwork(data.networkId()).getNetworkColor();
+                        } else {
+                            color = FluxConstants.INVALID_NETWORK_COLOR;
+                        }
                     }
-                    energy = tag.getLong(FluxConstants.ENERGY);
+                    energy = data.getEnergy();
                 } else {
                     color = FluxConstants.INVALID_NETWORK_COLOR;
                     energy = 0;

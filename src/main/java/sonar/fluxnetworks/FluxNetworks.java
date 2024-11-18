@@ -1,10 +1,13 @@
 package sonar.fluxnetworks;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.common.Mod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import sonar.fluxnetworks.api.FluxDataComponents;
+import sonar.fluxnetworks.register.DataAttachments;
 
 import javax.annotation.Nonnull;
 
@@ -20,11 +23,15 @@ public class FluxNetworks {
     private static boolean sCuriosLoaded;
     private static boolean sModernUILoaded;
 
-    public FluxNetworks() {
+    public FluxNetworks(IEventBus bus) {
         sCuriosLoaded = ModList.get().isLoaded("curios");
         sModernUILoaded = ModList.get().isLoaded("modernui");
 
         FluxConfig.init();
+
+
+        DataAttachments.REGISTER.register(bus);
+        FluxDataComponents.REGISTRY.register(bus);
     }
 
     public static boolean isCuriosLoaded() {
@@ -37,6 +44,6 @@ public class FluxNetworks {
 
     @Nonnull
     public static ResourceLocation location(String path) {
-        return new ResourceLocation(MODID, path);
+        return ResourceLocation.fromNamespaceAndPath(MODID, path);
     }
 }

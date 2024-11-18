@@ -1,17 +1,19 @@
 package sonar.fluxnetworks.common.device;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import sonar.fluxnetworks.api.FluxConstants;
+import sonar.fluxnetworks.api.FluxDataComponents;
 import sonar.fluxnetworks.api.device.FluxDeviceType;
 import sonar.fluxnetworks.api.device.IFluxStorage;
+import sonar.fluxnetworks.common.data.FluxDataComponent;
 import sonar.fluxnetworks.common.util.FluxGuiStack;
 import sonar.fluxnetworks.register.*;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 
 public abstract class TileFluxStorage extends TileFluxDevice implements IFluxStorage {
 
@@ -114,15 +116,14 @@ public abstract class TileFluxStorage extends TileFluxDevice implements IFluxSto
      */
     @Nonnull
     protected ItemStack writeToDisplayStack(@Nonnull ItemStack stack) {
-        CompoundTag subTag = stack.getOrCreateTagElement(FluxConstants.TAG_FLUX_DATA);
+        FluxDataComponent component = stack.getOrDefault(FluxDataComponents.FLUX_DATA, FluxDataComponent.EMPTY);
         //noinspection ConstantConditions
         if (level.isClientSide)
-            stack.getOrCreateTag().putBoolean(FluxConstants.FLUX_COLOR, true);
+            stack.set(FluxDataComponents.FLUX_COLOR, Optional.empty());
         else {
-            stack.getOrCreateTag().putBoolean(FluxConstants.FLUX_COLOR, false);
-            subTag.putInt(FluxConstants.CLIENT_COLOR, getNetwork().getNetworkColor());
+            stack.set(FluxDataComponents.FLUX_COLOR, Optional.of(getNetwork().getNetworkColor()));
         }
-        subTag.putLong(FluxConstants.ENERGY, getTransferBuffer());
+        stack.set(FluxDataComponents.FLUX_DATA, component.withEnergy(getTransferBuffer()));
         return stack;
     }
 

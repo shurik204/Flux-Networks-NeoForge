@@ -4,11 +4,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.IEnergyStorage;
-import sonar.fluxnetworks.api.FluxCapabilities;
+import net.neoforged.neoforge.capabilities.BlockCapability;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 import sonar.fluxnetworks.api.device.FluxDeviceType;
 import sonar.fluxnetworks.api.device.IFluxPoint;
 import sonar.fluxnetworks.api.energy.IFNEnergyStorage;
@@ -17,13 +14,15 @@ import sonar.fluxnetworks.register.RegistryBlockEntityTypes;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@ParametersAreNonnullByDefault
 public class TileFluxPoint extends TileFluxConnector implements IFluxPoint {
 
     private final FluxPointHandler mHandler = new FluxPointHandler();
 
     @Nullable
-    private LazyOptional<?> mEnergyCap;
+    private EnergyStorage mEnergyCap;
 
     public TileFluxPoint(@Nonnull BlockPos pos, @Nonnull BlockState state) {
         super(RegistryBlockEntityTypes.FLUX_POINT.get(), pos, state);
@@ -48,28 +47,21 @@ public class TileFluxPoint extends TileFluxConnector implements IFluxPoint {
     }
 
     @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        if (mEnergyCap != null) {
-            mEnergyCap.invalidate();
-            mEnergyCap = null;
-        }
+    @SuppressWarnings("NonExtendableApiUsage")
+    public void invalidateCapabilities() {
+        mEnergyCap = null;
+        super.invalidateCapabilities();
     }
 
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
+    @Nullable
+    public <T> T getEnergyCapability(BlockCapability<T, Direction> cap, @Nullable Direction side) {
         if (!isRemoved()) {
-            if (cap == ForgeCapabilities.ENERGY || cap == FluxCapabilities.FN_ENERGY_STORAGE) {
-                if (mEnergyCap == null) {
-                    final EnergyStorage storage = new EnergyStorage();
-                    // save an immutable pointer to an immutable object
-                    mEnergyCap = LazyOptional.of(() -> storage);
-                }
-                return mEnergyCap.cast();
+            if (mEnergyCap == null) {
+                mEnergyCap = new EnergyStorage();
             }
+            return (T) mEnergyCap;
         }
-        return super.getCapability(cap, side);
+        return null;
     }
 
     private class EnergyStorage implements IEnergyStorage, IFNEnergyStorage {

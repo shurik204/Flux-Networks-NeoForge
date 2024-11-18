@@ -1,14 +1,13 @@
 package sonar.fluxnetworks.common.device;
 
 import net.minecraft.Util;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.GlobalPos;
+import net.minecraft.core.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
@@ -16,15 +15,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.world.ForgeChunkManager;
-import net.minecraftforge.network.NetworkHooks;
 import sonar.fluxnetworks.FluxConfig;
-import sonar.fluxnetworks.FluxNetworks;
 import sonar.fluxnetworks.api.FluxConstants;
 import sonar.fluxnetworks.api.FluxTranslate;
 import sonar.fluxnetworks.api.device.IFluxDevice;
 import sonar.fluxnetworks.client.ClientCache;
 import sonar.fluxnetworks.common.connection.*;
+import sonar.fluxnetworks.common.level.FluxChunkLoading;
 import sonar.fluxnetworks.common.util.FluxUtils;
 import sonar.fluxnetworks.register.Channel;
 import sonar.fluxnetworks.register.Messages;
@@ -115,7 +112,7 @@ public abstract class TileFluxDevice extends BlockEntity implements IFluxDevice 
             if (isForcedLoading()) {
                 //FluxChunkManager.removeChunkLoader(this);
                 long chunkPos = ChunkPos.asLong(worldPosition);
-                ForgeChunkManager.forceChunk((ServerLevel) level, FluxNetworks.MODID, worldPosition,
+                FluxChunkLoading.CONTROLLER.forceChunk((ServerLevel) level, worldPosition,
                         ChunkPos.getX(chunkPos), ChunkPos.getZ(chunkPos), false, true);
             }
             getTransferHandler().onNetworkChanged();
@@ -162,14 +159,14 @@ public abstract class TileFluxDevice extends BlockEntity implements IFluxDevice 
         if (mPlayerUsing != null) {
             player.displayClientMessage(FluxTranslate.ACCESS_OCCUPY, true);
         } else if (canPlayerAccess(player)) {
-            final Consumer<FriendlyByteBuf> writer = buf -> {
+            final Consumer<RegistryFriendlyByteBuf> writer = buf -> {
                 buf.writeBoolean(true); // tell it's BlockEntity rather than Configurator
                 buf.writeBlockPos(worldPosition);
                 CompoundTag tag = new CompoundTag();
                 writeCustomTag(tag, FluxConstants.NBT_TILE_UPDATE);
                 buf.writeNbt(tag);
             };
-            NetworkHooks.openScreen((ServerPlayer) player, this, writer);
+            player.openMenu(this, writer);
         } else {
             player.displayClientMessage(FluxTranslate.ACCESS_DENIED, true);
         }
@@ -234,7 +231,7 @@ public abstract class TileFluxDevice extends BlockEntity implements IFluxDevice 
     }
 
     @Override
-    public final void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
+    public final void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider registries) {
         // Client side, read block update data
         readCustomTag(packet.getTag(), FluxConstants.NBT_TILE_UPDATE);
         // update chunk render whether state changed or not
@@ -243,29 +240,29 @@ public abstract class TileFluxDevice extends BlockEntity implements IFluxDevice 
 
     @Nonnull
     @Override
-    public final CompoundTag getUpdateTag() {
+    public final CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         // Server side, read NBT when updating chunk data
-        CompoundTag tag = super.getUpdateTag();
+        CompoundTag tag = super.getUpdateTag(registries);
         writeCustomTag(tag, FluxConstants.NBT_TILE_UPDATE);
         return tag;
     }
 
     @Override
-    public final void handleUpdateTag(CompoundTag tag) {
+    public final void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
         // Client side, read NBT when updating chunk data
-        super.load(tag);
+        super.loadAdditional(tag, registries);
         readCustomTag(tag, FluxConstants.NBT_TILE_UPDATE);
     }
 
     @Override
-    protected final void saveAdditional(@Nonnull CompoundTag tag) {
-        super.saveAdditional(tag);
+    protected final void saveAdditional(@Nonnull CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
         writeCustomTag(tag, FluxConstants.NBT_SAVE_ALL);
     }
 
     @Override
-    public final void load(@Nonnull CompoundTag tag) {
-        super.load(tag);
+    public final void loadAdditional(@Nonnull CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
         readCustomTag(tag, FluxConstants.NBT_SAVE_ALL);
     }
 
@@ -297,10 +294,22 @@ public abstract class TileFluxDevice extends BlockEntity implements IFluxDevice 
                 tag.putUUID(FluxConstants.PLAYER_UUID, mOwnerUUID);
                 tag.putBoolean(FluxConstants.FORCED_LOADING, isForcedLoading());
                 tag.putBoolean(FluxConstants.CHUNK_LOADED, isChunkLoaded());
-                getDisplayStack().save(tag);
+                getDisplayStack().save(level.registryAccess(), tag);
             }
         }
     }
+
+    @Override
+    protected void applyImplicitComponents(DataComponentInput componentInput) {
+        super.applyImplicitComponents(componentInput);
+        // TODO: finish
+        // FluxDataComponent config = componentInput.get(FluxDataComponents.FLUX_DATA);
+        // if (config != null) {
+        //     mNetworkID = config.networkId();
+        // }
+    }
+
+
 
     @Override
     public void readCustomTag(@Nonnull CompoundTag tag, byte type) {
@@ -323,7 +332,7 @@ public abstract class TileFluxDevice extends BlockEntity implements IFluxDevice 
                 boolean load = tag.getBoolean(FluxConstants.FORCED_LOADING) &&
                         FluxConfig.enableChunkLoading && !getDeviceType().isStorage();
                 long chunkPos = ChunkPos.asLong(worldPosition);
-                ForgeChunkManager.forceChunk((ServerLevel) level, FluxNetworks.MODID, worldPosition,
+                FluxChunkLoading.CONTROLLER.forceChunk((ServerLevel) level, worldPosition,
                         ChunkPos.getX(chunkPos), ChunkPos.getZ(chunkPos), load, true);
                 setForcedLoading(load);
             }
@@ -410,7 +419,7 @@ public abstract class TileFluxDevice extends BlockEntity implements IFluxDevice 
      * Write hot data to a byte buffer. Hot data is what's updated almost every tick,
      * such as energy changes.
      *
-     * @param buf  the byte buf
+     * @param buf  the byte data
      * @param type the type id
      */
     public void writePacketBuffer(FriendlyByteBuf buf, byte type) {

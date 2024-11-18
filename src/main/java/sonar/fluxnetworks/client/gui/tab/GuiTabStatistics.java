@@ -177,12 +177,9 @@ public class GuiTabStatistics extends GuiTabCore {
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
 
-            Tesselator tesselator = Tesselator.getInstance();
-            BufferBuilder builder = tesselator.getBuilder();
-
+            BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
             RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
-            builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
             float hw = 1;
             for (int i = 0; i < currentHeight.size() - 1; i++) {
                 float lx = x + 20 * i;
@@ -190,33 +187,23 @@ public class GuiTabStatistics extends GuiTabCore {
                 float rx = x + 20 * (i + 1);
                 float ry = currentHeight.getFloat(i + 1);
                 Matrix4f matrix = gr.pose().last().pose();
-                builder.vertex(matrix, rx, ry - hw, 0)
-                        .color(255, 255, 255, 255).endVertex();
-                builder.vertex(matrix, lx, ly - hw, 0)
-                        .color(255, 255, 255, 255).endVertex();
-                builder.vertex(matrix, lx, ly + hw, 0)
-                        .color(255, 255, 255, 255).endVertex();
-                builder.vertex(matrix, rx, ry + hw, 0)
-                        .color(255, 255, 255, 255).endVertex();
+                builder.addVertex(matrix, rx, ry - hw, 0).setColor(255, 255, 255, 255);
+                builder.addVertex(matrix, lx, ly - hw, 0).setColor(255, 255, 255, 255);
+                builder.addVertex(matrix, lx, ly + hw, 0).setColor(255, 255, 255, 255);
+                builder.addVertex(matrix, rx, ry + hw, 0).setColor(255, 255, 255, 255);
             }
-            tesselator.end();
 
-            builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
             hw = 2;
             for (int i = 0; i < currentHeight.size(); i++) {
                 float cx = x + 20 * i;
                 float cy = currentHeight.getFloat(i);
                 Matrix4f matrix = gr.pose().last().pose();
-                builder.vertex(matrix, cx + hw, cy - hw, 0)
-                        .color(255, 255, 255, 255).endVertex();
-                builder.vertex(matrix, cx - hw, cy - hw, 0)
-                        .color(255, 255, 255, 255).endVertex();
-                builder.vertex(matrix, cx - hw, cy + hw, 0)
-                        .color(255, 255, 255, 255).endVertex();
-                builder.vertex(matrix, cx + hw, cy + hw, 0)
-                        .color(255, 255, 255, 255).endVertex();
+                builder.addVertex(matrix, cx + hw, cy - hw, 0).setColor(255, 255, 255, 255);
+                builder.addVertex(matrix, cx - hw, cy - hw, 0).setColor(255, 255, 255, 255);
+                builder.addVertex(matrix, cx - hw, cy + hw, 0).setColor(255, 255, 255, 255);
+                builder.addVertex(matrix, cx + hw, cy + hw, 0).setColor(255, 255, 255, 255);
             }
-            tesselator.end();
+            BufferUploader.drawWithShader(builder.buildOrThrow());
 
             gr.fill(x - 16, y + height, x + 116, y + height + 1, 0xcfffffff);
             gr.fill(x - 14, y - 6, x - 13, y + height + 3, 0xcfffffff);

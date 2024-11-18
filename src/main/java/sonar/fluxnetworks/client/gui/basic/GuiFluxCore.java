@@ -51,7 +51,7 @@ public abstract class GuiFluxCore extends GuiPopupHost {
                 MUIIntegration.showToastError(t);
             } else {
                 getMinecraft().getToasts().addToast(SystemToast.multiline(getMinecraft(),
-                        SystemToast.SystemToastIds.TUTORIAL_HINT,
+                        SystemToast.SystemToastId.WORLD_ACCESS_FAILURE,
                         Component.literal(FluxNetworks.NAME),
                         t.getComponent()));
             }

@@ -3,11 +3,11 @@ package sonar.fluxnetworks.client.gui.tab;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import org.lwjgl.glfw.GLFW;
 import sonar.fluxnetworks.api.FluxConstants;
+import sonar.fluxnetworks.api.FluxDataComponents;
 import sonar.fluxnetworks.api.FluxTranslate;
 import sonar.fluxnetworks.api.network.AccessLevel;
 import sonar.fluxnetworks.api.network.SecurityLevel;
@@ -19,6 +19,7 @@ import sonar.fluxnetworks.client.gui.button.EditButton;
 import sonar.fluxnetworks.client.gui.popup.PopupNetworkPassword;
 import sonar.fluxnetworks.common.connection.FluxMenu;
 import sonar.fluxnetworks.common.connection.FluxNetwork;
+import sonar.fluxnetworks.common.data.FluxDataComponent;
 import sonar.fluxnetworks.common.item.ItemFluxConfigurator;
 import sonar.fluxnetworks.common.util.FluxUtils;
 
@@ -189,8 +190,8 @@ public class GuiTabSelection extends GuiTabPages<FluxNetwork> {
                         ClientCache.updateRecentPassword(mSelectedNetwork.getNetworkID(), p.mPassword.getValue());
                     }
                     if (menu.mProvider instanceof ItemFluxConfigurator.Provider p) {
-                        CompoundTag tag = p.mStack.getOrCreateTagElement(FluxConstants.TAG_FLUX_DATA);
-                        tag.putInt(FluxConstants.NETWORK_ID, mSelectedNetwork.getNetworkID());
+                        FluxDataComponent component = p.mStack.getOrDefault(FluxDataComponents.FLUX_DATA, FluxDataComponent.EMPTY);
+                        p.mStack.set(FluxDataComponents.FLUX_DATA, component.withNetwork(mSelectedNetwork.getNetworkID()));
                     }
                 }
                 closePopup();

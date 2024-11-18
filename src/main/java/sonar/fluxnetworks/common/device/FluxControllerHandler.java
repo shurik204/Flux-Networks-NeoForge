@@ -5,14 +5,14 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import sonar.fluxnetworks.FluxConfig;
 import sonar.fluxnetworks.FluxNetworks;
 import sonar.fluxnetworks.api.FluxConstants;
 import sonar.fluxnetworks.api.energy.IItemEnergyConnector;
 import sonar.fluxnetworks.api.network.NetworkMember;
 import sonar.fluxnetworks.api.network.WirelessType;
-import sonar.fluxnetworks.common.capability.FluxPlayer;
+import sonar.fluxnetworks.common.data.FluxPlayerData;
 import sonar.fluxnetworks.common.connection.TransferHandler;
 import sonar.fluxnetworks.common.integration.CuriosIntegration;
 import sonar.fluxnetworks.common.util.EnergyUtils;
@@ -115,10 +115,7 @@ public class FluxControllerHandler extends TransferHandler {
             if (player == null || !player.isAlive()) {
                 continue;
             }
-            FluxPlayer fluxPlayer = FluxUtils.get(player, FluxPlayer.FLUX_PLAYER);
-            if (fluxPlayer == null) {
-                continue;
-            }
+            FluxPlayerData fluxPlayer = FluxUtils.getPlayerData(player);
             if (fluxPlayer.getWirelessNetwork() != mDevice.getNetworkID()) {
                 continue;
             }

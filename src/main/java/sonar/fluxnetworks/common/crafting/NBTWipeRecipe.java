@@ -1,64 +1,78 @@
 package sonar.fluxnetworks.common.crafting;
 
+import com.mojang.serialization.MapCodec;
+import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.block.Block;
-import sonar.fluxnetworks.api.FluxConstants;
+import sonar.fluxnetworks.api.FluxDataComponents;
 import sonar.fluxnetworks.common.block.FluxStorageBlock;
+import sonar.fluxnetworks.common.data.FluxDataComponent;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.function.Function;
 
 /**
  * save Flux Storage energy when wiping NBT
  */
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class NBTWipeRecipe extends ShapelessRecipe {
-
-    public NBTWipeRecipe(ResourceLocation idIn, String groupIn, CraftingBookCategory category, ItemStack recipeOutputIn,
-                         NonNullList<Ingredient> recipeItemsIn) {
-        super(idIn, groupIn, category, recipeOutputIn, recipeItemsIn);
+    public NBTWipeRecipe(String group, CraftingBookCategory category, ItemStack result, NonNullList<Ingredient> ingredients) {
+        super(group, category, result, ingredients);
     }
 
-    public NBTWipeRecipe(@Nonnull ShapelessRecipe recipe) {
-        super(recipe.getId(), recipe.getGroup(), recipe.category(), recipe.getResultItem(RegistryAccess.EMPTY), recipe.getIngredients());
+    public NBTWipeRecipe(ShapelessRecipe recipe) {
+        // String group, CraftingBookCategory category, ItemStack result, NonNullList<Ingredient> ingredients
+        super(recipe.getGroup(), recipe.category(), recipe.getResultItem(RegistryAccess.EMPTY), recipe.getIngredients());
     }
 
-    @Nonnull
     @Override
-    public ItemStack assemble(@Nonnull CraftingContainer container, @Nonnull RegistryAccess registryAccess) {
-        ItemStack originalStack = null;
+    public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
+        ItemStack originalStack = input.items().stream().filter(stack -> !stack.isEmpty() && stack.get(FluxDataComponents.FLUX_DATA) != null).findFirst().orElse(null);
+        ItemStack output = super.assemble(input, registries);
 
-        for (int i = 0; i < container.getContainerSize(); i++) {
-            ItemStack stack = container.getItem(i);
-            if (!stack.isEmpty()) {
-                originalStack = stack;
-                break;
-            }
-        }
         if (originalStack != null) {
-            ItemStack output = getResultItem(registryAccess).copy();
             if (Block.byItem(output.getItem()) instanceof FluxStorageBlock) {
-                CompoundTag subTag = originalStack.getTagElement(FluxConstants.TAG_FLUX_DATA);
+                FluxDataComponent data = originalStack.get(FluxDataComponents.FLUX_DATA);
                 long energy = 0;
-                if (subTag != null) {
-                    energy = subTag.getLong(FluxConstants.ENERGY);
+                if (data != null) {
+                    energy = data.getEnergy();
                 }
                 if (energy != 0) {
-                    CompoundTag newTag = output.getOrCreateTagElement(FluxConstants.TAG_FLUX_DATA);
-                    newTag.putLong(FluxConstants.ENERGY, energy);
+                    output.set(FluxDataComponents.FLUX_DATA, FluxDataComponent.EMPTY.withEnergy(energy));
                 }
             }
             return output;
         }
-        return super.assemble(container, registryAccess);
+        return output;
     }
 
-    @Nonnull
     public RecipeSerializer<?> getSerializer() {
-        return NBTWipeRecipeSerializer.INSTANCE;
+        return Serializer.INSTANCE;
+    }
+
+    public static class Serializer implements RecipeSerializer<NBTWipeRecipe> {
+        public static final Serializer INSTANCE = new Serializer();
+
+        public static final MapCodec<NBTWipeRecipe> CODEC = RecipeSerializer.SHAPELESS_RECIPE.codec().xmap(NBTWipeRecipe::new, Function.identity());
+        public static final StreamCodec<RegistryFriendlyByteBuf, NBTWipeRecipe> STREAM_CODEC = RecipeSerializer.SHAPELESS_RECIPE.streamCodec().map(NBTWipeRecipe::new, Function.identity());
+
+        @Override
+        public MapCodec<NBTWipeRecipe> codec() {
+            return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, NBTWipeRecipe> streamCodec() {
+            return STREAM_CODEC;
+        }
+
+        private Serializer() {}
     }
 }

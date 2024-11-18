@@ -10,13 +10,13 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.thread.BlockableEventLoop;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import sonar.fluxnetworks.FluxNetworks;
 import sonar.fluxnetworks.api.FluxConstants;
 import sonar.fluxnetworks.api.device.IFluxDevice;
 import sonar.fluxnetworks.api.network.SecurityLevel;
 import sonar.fluxnetworks.api.network.WirelessType;
-import sonar.fluxnetworks.common.capability.FluxPlayer;
+import sonar.fluxnetworks.common.data.FluxPlayerData;
 import sonar.fluxnetworks.common.connection.FluxMenu;
 import sonar.fluxnetworks.common.connection.FluxNetwork;
 import sonar.fluxnetworks.common.connection.FluxNetworkData;
@@ -126,15 +126,13 @@ public class Messages {
     /**
      * Update player's capability.
      */
-    public static void syncCapability(Player player) {
+    public static void syncCapability(ServerPlayer player) {
         var buf = Channel.buffer(S2C_CAPABILITY);
-        FluxPlayer fluxPlayer = FluxUtils.get(player, FluxPlayer.FLUX_PLAYER);
-        if (fluxPlayer != null) {
-            buf.writeBoolean(FluxPlayer.isPlayerSuperAdmin(player));
-            buf.writeInt(fluxPlayer.getWirelessMode());
-            buf.writeVarInt(fluxPlayer.getWirelessNetwork());
-            sChannel.sendToPlayer(buf, player);
-        }
+        FluxPlayerData fluxPlayer = FluxUtils.getPlayerData(player);
+        buf.writeBoolean(FluxPlayerData.isPlayerSuperAdmin(player));
+        buf.writeInt(fluxPlayer.getWirelessMode());
+        buf.writeVarInt(fluxPlayer.getWirelessNetwork());
+        sChannel.sendToPlayer(buf, player);
     }
 
     /**
@@ -218,6 +216,7 @@ public class Messages {
             case C2S_UPDATE_CONNECTIONS -> onUpdateConnections(payload, player, server);
             default -> kick(player.get(), new RuntimeException("Unidentified message index " + index));
         }
+        payload.release();
     }
 
     private static void kick(ServerPlayer p, RuntimeException e) {
@@ -273,17 +272,13 @@ public class Messages {
             if (p == null) {
                 return;
             }
-            final FluxPlayer fp = FluxUtils.get(p, FluxPlayer.FLUX_PLAYER);
-            if (fp != null) {
-                if (fp.isSuperAdmin() || FluxPlayer.canActivateSuperAdmin(p)) {
-                    if (fp.setSuperAdmin(enable)) {
-                        syncCapability(p);
-                    }
-                } else {
-                    response(token, 0, FluxConstants.RESPONSE_REJECT, p);
+            final FluxPlayerData fp = FluxUtils.getPlayerData(p);
+            if (fp.isSuperAdmin() || FluxPlayerData.canActivateSuperAdmin(p)) {
+                if (fp.setSuperAdmin(enable)) {
+                    syncCapability(p);
                 }
             } else {
-                response(token, 0, FluxConstants.RESPONSE_INVALID_USER, p);
+                response(token, 0, FluxConstants.RESPONSE_REJECT, p);
             }
         });
     }
@@ -517,7 +512,7 @@ public class Messages {
             }
             boolean reject = true;
             if (p.containerMenu.containerId == token && p.containerMenu instanceof FluxMenu menu) {
-                if (FluxPlayer.isPlayerSuperAdmin(p)) {
+                if (FluxPlayerData.isPlayerSuperAdmin(p)) {
                     reject = false;
                 } else if (networkIDs.length == 1) {
                     // non-super admin can only request one network update
@@ -626,12 +621,12 @@ public class Messages {
         });
     }
 
-    private static boolean checkTokenFailed(int token, Player p, FluxNetwork network) {
+    private static boolean checkTokenFailed(int token, ServerPlayer p, FluxNetwork network) {
         if (!network.isValid()) {
             return true;
         }
         if (p.containerMenu.containerId == token && p.containerMenu instanceof FluxMenu menu) {
-            if (FluxPlayer.isPlayerSuperAdmin(p)) {
+            if (FluxPlayerData.isPlayerSuperAdmin(p)) {
                 return false;
             } else {
                 if (!(menu.mProvider instanceof ItemAdminConfigurator.Provider)) {
@@ -661,26 +656,22 @@ public class Messages {
             if (p == null) {
                 return;
             }
-            final FluxPlayer fp = FluxUtils.get(p, FluxPlayer.FLUX_PLAYER);
-            if (fp != null) {
-                final FluxNetwork network = FluxNetworkData.getNetwork(wirelessNetwork);
-                // allow set to invalid
-                boolean reject = network.isValid() &&
-                        (checkTokenFailed(token, p, network) || network.getMemberByUUID(p.getUUID()) == null);
-                if (reject) {
-                    if (WirelessType.ENABLE_WIRELESS.isActivated(wirelessMode)) {
-                        response(token, 0, FluxConstants.RESPONSE_REJECT, p);
-                    } else {
-                        fp.setWirelessMode(wirelessMode);
-                        syncCapability(p);
-                    }
+            final FluxPlayerData fp = FluxUtils.getPlayerData(p);
+            final FluxNetwork network = FluxNetworkData.getNetwork(wirelessNetwork);
+            // allow set to invalid
+            boolean reject = network.isValid() &&
+                    (checkTokenFailed(token, p, network) || network.getMemberByUUID(p.getUUID()) == null);
+            if (reject) {
+                if (WirelessType.ENABLE_WIRELESS.isActivated(wirelessMode)) {
+                    response(token, 0, FluxConstants.RESPONSE_REJECT, p);
                 } else {
                     fp.setWirelessMode(wirelessMode);
-                    fp.setWirelessNetwork(wirelessNetwork);
                     syncCapability(p);
                 }
             } else {
-                response(token, 0, FluxConstants.RESPONSE_INVALID_USER, p);
+                fp.setWirelessMode(wirelessMode);
+                fp.setWirelessNetwork(wirelessNetwork);
+                syncCapability(p);
             }
         });
     }

@@ -5,15 +5,15 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.RegisterEvent;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import sonar.fluxnetworks.FluxNetworks;
 
 public class RegistryCreativeModeTabs {
     public static final ResourceLocation CREATIVE_MODE_TAB_KEY = FluxNetworks.location("tab");
 
-    public static final RegistryObject<CreativeModeTab> CREATIVE_MODE_TAB = RegistryObject.create(
-            CREATIVE_MODE_TAB_KEY, Registries.CREATIVE_MODE_TAB, FluxNetworks.MODID
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> CREATIVE_MODE_TAB = DeferredHolder.create(
+            Registries.CREATIVE_MODE_TAB, CREATIVE_MODE_TAB_KEY
     );
 
     static void register(RegisterEvent.RegisterHelper<CreativeModeTab> helper) {

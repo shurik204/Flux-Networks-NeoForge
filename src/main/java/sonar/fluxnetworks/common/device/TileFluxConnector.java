@@ -6,6 +6,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.capabilities.BlockCapability;
 import sonar.fluxnetworks.common.block.FluxConnectorBlock;
 import sonar.fluxnetworks.common.util.FluxUtils;
 
@@ -21,6 +22,9 @@ public abstract class TileFluxConnector extends TileFluxDevice {
     @Nonnull
     @Override
     public abstract FluxConnectorHandler getTransferHandler();
+
+    @Nullable
+    public abstract <T> T getEnergyCapability(BlockCapability<T, Direction> cap, @Nullable Direction side);
 
     @Override
     protected void onFirstTick() {

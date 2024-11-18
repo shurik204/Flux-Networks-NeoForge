@@ -5,19 +5,21 @@ import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import sonar.fluxnetworks.api.FluxConstants;
+import sonar.fluxnetworks.api.FluxDataComponents;
 import sonar.fluxnetworks.client.gui.basic.GuiFluxCore;
+import sonar.fluxnetworks.common.data.FluxDataComponent;
 import sonar.fluxnetworks.common.device.TileFluxDevice;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Optional;
 
 /**
  * Render network color on blocks and items.
@@ -131,8 +133,9 @@ public class FluxColorHandler implements BlockColor, ItemColor {
     public int getColor(@Nonnull ItemStack stack, int tintIndex) {
         // called every frame
         if (tintIndex == 1) {
-            CompoundTag tag = stack.getTag();
-            if (tag != null && tag.getBoolean(FluxConstants.FLUX_COLOR)) {
+            Optional<Integer> color = stack.get(FluxDataComponents.FLUX_COLOR);
+            // TODO: what??????
+            if (color != null && color.isPresent()) {
                 /*if (FluxConfig.enableGuiDebug && FluxNetworks.modernUILoaded) {
                     return NavigationHome.network.isInvalid() ? NO_NETWORK_COLOR : NavigationHome.network.getSetting
                     (NetworkSettings.NETWORK_COLOR) | 0xff000000;
@@ -142,9 +145,9 @@ public class FluxColorHandler implements BlockColor, ItemColor {
                     return gui.getNetwork().getNetworkColor();
                 }
             }
-            tag = stack.getTagElement(FluxConstants.TAG_FLUX_DATA);
-            if (tag != null) {
-                return ClientCache.getNetwork(tag.getInt(FluxConstants.NETWORK_ID)).getNetworkColor();
+            FluxDataComponent data = stack.get(FluxDataComponents.FLUX_DATA);
+            if (data != null) {
+                return ClientCache.getNetwork(data.networkId()).getNetworkColor();
             }
             return FluxConstants.INVALID_NETWORK_COLOR;
         }
@@ -160,9 +163,9 @@ public class FluxColorHandler implements BlockColor, ItemColor {
                     return gui.network.getNetworkColor();
                 }
             }*/
-            CompoundTag tag = stack.getTagElement(FluxConstants.TAG_FLUX_CONFIG);
-            if (tag != null) {
-                return ClientCache.getNetwork(tag.getInt(FluxConstants.NETWORK_ID)).getNetworkColor();
+            FluxDataComponent component = stack.get(FluxDataComponents.FLUX_CONFIG);
+            if (component != null) {
+                return ClientCache.getNetwork(component.networkId()).getNetworkColor();
             }
             return FluxConstants.INVALID_NETWORK_COLOR;
         }
