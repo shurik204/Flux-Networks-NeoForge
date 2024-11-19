@@ -30,17 +30,17 @@ public class FluxStorageRecipe extends ShapedRecipe {
     public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
         ItemStack result = super.assemble(input, registries);
         // Find all flux storage items in the input
-        List<ItemStack> storageItems = input.items().stream().filter(stack -> !stack.isEmpty() && stack.get(FluxDataComponents.FLUX_DATA) != null).toList();
+        List<ItemStack> storageItems = input.items().stream().filter(stack -> !stack.isEmpty() && stack.get(FluxDataComponents.STORED_ENERGY) != null).toList();
         // If none found, bail
         if (storageItems.isEmpty()) {
             return result;
         }
-        // First item is used as the base
-        FluxDataComponent component = storageItems.getFirst().get(FluxDataComponents.FLUX_DATA);
         // Sum the energy of all storage items
-        long totalEnergy = storageItems.stream().map(stack -> stack.get(FluxDataComponents.FLUX_DATA).getEnergy()).reduce(0L, Long::sum);
+        long totalEnergy = storageItems.stream().map(stack -> stack.get(FluxDataComponents.STORED_ENERGY)).reduce(0L, Long::sum);
         // Put the total energy value into the resulting item
-        result.set(FluxDataComponents.FLUX_DATA, component.withEnergy(totalEnergy));
+        result.set(FluxDataComponents.STORED_ENERGY, totalEnergy);
+        // Copy device configuration from the first storage item (if present)
+        result.copyFrom(storageItems.getFirst(), FluxDataComponents.FLUX_DATA);
 
         return result;
     }

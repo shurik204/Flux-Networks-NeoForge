@@ -112,7 +112,7 @@ public class PhantomFluxDevice implements IFluxDevice {
             mSurgeMode = tag.getBoolean(FluxConstants.SURGE_MODE);
             mDisableLimit = tag.getBoolean(FluxConstants.DISABLE_LIMIT);
             mOwnerUUID = tag.getUUID(FluxConstants.PLAYER_UUID);
-            mBuffer = tag.getLong(FluxConstants.BUFFER);
+            mBuffer = tag.getLong(FluxConstants.ENERGY);
             mDisplayStack = ItemStack.parse(RegistryAccess.EMPTY, tag).orElse(ItemStack.EMPTY);
         }
         if (type == FluxConstants.NBT_PHANTOM_UPDATE) {

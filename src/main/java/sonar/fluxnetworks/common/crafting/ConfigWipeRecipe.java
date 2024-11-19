@@ -12,7 +12,6 @@ import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.block.Block;
 import sonar.fluxnetworks.api.FluxDataComponents;
 import sonar.fluxnetworks.common.block.FluxStorageBlock;
-import sonar.fluxnetworks.common.data.FluxDataComponent;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Function;
@@ -39,14 +38,7 @@ public class ConfigWipeRecipe extends ShapelessRecipe {
 
         if (originalStack != null) {
             if (Block.byItem(output.getItem()) instanceof FluxStorageBlock) {
-                FluxDataComponent data = originalStack.get(FluxDataComponents.FLUX_DATA);
-                long energy = 0;
-                if (data != null) {
-                    energy = data.getEnergy();
-                }
-                if (energy != 0) {
-                    output.set(FluxDataComponents.FLUX_DATA, FluxDataComponent.EMPTY.withEnergy(energy));
-                }
+                output.copyFrom(originalStack, FluxDataComponents.STORED_ENERGY);
             }
             return output;
         }

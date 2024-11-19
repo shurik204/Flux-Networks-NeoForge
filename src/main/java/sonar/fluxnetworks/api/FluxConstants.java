@@ -115,7 +115,8 @@ public final class FluxConstants {
 
     // NBT sub-tag key
     public static final String FLUX_DATA_COMPONENT = "flux_data";
-    public static final String FLUX_CONFIG_COMPONENT = "flux_config";
+    public static final String FLUX_CONFIG_COMPONENT = "device_config";
+    public static final String STORED_ENERGY_COMPONENT = "stored_energy";
 
     // NBT root key
     public static final String FLUX_COLOR_COMPONENT = "flux_color";
@@ -136,7 +137,6 @@ public final class FluxConstants {
     public static final String FORCED_LOADING = "forced_loading";
     public static final String CHUNK_LOADED = "chunk_loaded";
 
-    public static final String BUFFER = "buffer";
     public static final String ENERGY = "energy"; // equals to buffer, but with different display text
     public static final String CHANGE = "change";
 

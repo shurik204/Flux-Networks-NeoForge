@@ -79,7 +79,7 @@ public class FluxControllerHandler extends TransferHandler {
     @Override
     public void writeCustomTag(@Nonnull CompoundTag tag, byte type) {
         super.writeCustomTag(tag, type);
-        tag.putLong(FluxConstants.BUFFER, mBuffer);
+        tag.putLong(FluxConstants.ENERGY, mBuffer);
     }
 
     private long sendToConsumers(long energy) {

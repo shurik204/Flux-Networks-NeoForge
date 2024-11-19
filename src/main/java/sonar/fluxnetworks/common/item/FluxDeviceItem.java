@@ -14,6 +14,7 @@ import sonar.fluxnetworks.client.ClientCache;
 import sonar.fluxnetworks.common.block.FluxStorageBlock;
 import sonar.fluxnetworks.common.connection.FluxNetwork;
 import sonar.fluxnetworks.common.data.FluxDataComponent;
+import sonar.fluxnetworks.register.RegistryTags;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
@@ -42,6 +43,7 @@ public class FluxDeviceItem extends BlockItem {
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         FluxDataComponent component = stack.get(FluxDataComponents.FLUX_DATA);
+        Long storedEnergy = stack.get(FluxDataComponents.STORED_ENERGY);
         if (component != null) {
             final FluxNetwork network = ClientCache.getNetwork(component.networkId());
             if (network.isValid()) {
@@ -58,12 +60,15 @@ public class FluxDeviceItem extends BlockItem {
                 tooltip.add(Component.literal(ChatFormatting.BLUE + FluxTranslate.PRIORITY.get() + ": " +
                         ChatFormatting.RESET + component.getPriority()));
             }
+        }
 
-            if (component.buffer().isPresent()) {
+        if (storedEnergy != null) {
+            // Non-storage devices display internal buffer instead of stored energy
+            if (!stack.is(RegistryTags.FLUX_STORAGE)) {
                 tooltip.add(Component.literal(ChatFormatting.BLUE + FluxTranslate.INTERNAL_BUFFER.get() + ": " +
-                        ChatFormatting.RESET + EnergyType.FE.getStorage(component.buffer().get())));
-            } else if (component.energy().isPresent()) {
-                long energy = component.energy().get();
+                        ChatFormatting.RESET + EnergyType.FE.getStorage(storedEnergy)));
+            } else {
+                long energy = storedEnergy;
                 Block block = getBlock();
                 double percentage;
                 if (block instanceof FluxStorageBlock)
@@ -74,9 +79,7 @@ public class FluxDeviceItem extends BlockItem {
                         ChatFormatting.RESET + EnergyType.FE.getStorage(energy) + String.format(" (%.1f%%)",
                         percentage * 100)));
             }
-
-        } else {
-            super.appendHoverText(stack, context, tooltip, flag);
         }
+        super.appendHoverText(stack, context, tooltip, flag);
     }
 }

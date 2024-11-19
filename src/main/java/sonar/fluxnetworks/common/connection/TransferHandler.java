@@ -240,11 +240,7 @@ public abstract class TransferHandler {
 
     public void readCustomTag(@Nonnull CompoundTag tag, byte type) {
         assert type != FluxConstants.NBT_TILE_SETTINGS;
-        if (tag.contains(FluxConstants.BUFFER)) {
-            mBuffer = tag.getLong(FluxConstants.BUFFER);
-        } else {
-            mBuffer = tag.getLong(FluxConstants.ENERGY);
-        }
+        mBuffer = tag.getLong(FluxConstants.ENERGY);
         switch (type) {
             case FluxConstants.NBT_SAVE_ALL, FluxConstants.NBT_TILE_DROP -> {
                 mPriority = tag.getInt(FluxConstants.PRIORITY);

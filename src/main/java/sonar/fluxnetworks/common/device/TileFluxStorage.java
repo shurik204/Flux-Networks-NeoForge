@@ -123,7 +123,7 @@ public abstract class TileFluxStorage extends TileFluxDevice implements IFluxSto
         else {
             stack.set(FluxDataComponents.FLUX_COLOR, Optional.of(getNetwork().getNetworkColor()));
         }
-        stack.set(FluxDataComponents.FLUX_DATA, component.withEnergy(getTransferBuffer()));
+        stack.set(FluxDataComponents.STORED_ENERGY, getTransferBuffer());
         return stack;
     }
 
