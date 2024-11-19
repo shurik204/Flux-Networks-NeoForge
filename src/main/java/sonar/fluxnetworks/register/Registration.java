@@ -10,10 +10,12 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.common.world.chunk.RegisterTicketControllersEvent;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import sonar.fluxnetworks.FluxNetworks;
 import sonar.fluxnetworks.common.integration.TOPIntegration;
+import sonar.fluxnetworks.common.level.FluxChunkLoading;
 import sonar.fluxnetworks.common.util.EnergyUtils;
 import sonar.fluxnetworks.data.loot.FluxLootTableProvider;
 import sonar.fluxnetworks.data.tags.FluxBlockTagsProvider;
@@ -37,6 +39,11 @@ public class Registration {
         if (ModList.get().isLoaded("theoneprobe")) {
             InterModComms.sendTo("theoneprobe", "getTheOneProbe", TOPIntegration::new);
         }
+    }
+
+    @SubscribeEvent
+    public static void registerTicketControllers(RegisterTicketControllersEvent event) {
+        event.register(FluxChunkLoading.CONTROLLER);
     }
 
     @SubscribeEvent
