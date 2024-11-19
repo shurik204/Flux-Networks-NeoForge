@@ -1,0 +1,13 @@
+{
+  "type": "fluxnetworks:config_wipe_recipe",
+  "category": "fluxnetworks",
+  "ingredients": [
+    {
+      "item": "fluxnetworks:gargantuan_flux_storage"
+    }
+  ],
+  "result": {
+    "id": "fluxnetworks:gargantuan_flux_storage",
+    "count": 1
+  }
+}

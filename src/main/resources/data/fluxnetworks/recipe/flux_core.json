@@ -1,6 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
-  "group": "fluxnetworks",
+  "category": "fluxnetworks",
   "pattern": [
     "fof",
     "oeo",
@@ -18,7 +18,7 @@
     }
   },
   "result": {
-    "item": "fluxnetworks:flux_core",
+    "id": "fluxnetworks:flux_core",
     "count": 4
   }
 }

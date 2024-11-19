@@ -1,6 +1,6 @@
 {
   "type": "fluxnetworks:flux_storage_recipe",
-  "group": "fluxnetworks",
+  "category": "fluxnetworks",
   "pattern": [
     "bbb",
     "g g",
@@ -11,10 +11,11 @@
       "item": "fluxnetworks:herculean_flux_storage"
     },
     "g": {
-      "tag": "forge:glass_panes"
+      "tag": "c:glass_panes"
     }
   },
   "result": {
-    "item": "fluxnetworks:gargantuan_flux_storage"
+    "id": "fluxnetworks:gargantuan_flux_storage",
+    "count": 1
   }
 }

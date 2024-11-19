@@ -22,12 +22,12 @@ import java.util.function.Function;
  */
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class NBTWipeRecipe extends ShapelessRecipe {
-    public NBTWipeRecipe(String group, CraftingBookCategory category, ItemStack result, NonNullList<Ingredient> ingredients) {
+public class ConfigWipeRecipe extends ShapelessRecipe {
+    public ConfigWipeRecipe(String group, CraftingBookCategory category, ItemStack result, NonNullList<Ingredient> ingredients) {
         super(group, category, result, ingredients);
     }
 
-    public NBTWipeRecipe(ShapelessRecipe recipe) {
+    public ConfigWipeRecipe(ShapelessRecipe recipe) {
         // String group, CraftingBookCategory category, ItemStack result, NonNullList<Ingredient> ingredients
         super(recipe.getGroup(), recipe.category(), recipe.getResultItem(RegistryAccess.EMPTY), recipe.getIngredients());
     }
@@ -57,19 +57,19 @@ public class NBTWipeRecipe extends ShapelessRecipe {
         return Serializer.INSTANCE;
     }
 
-    public static class Serializer implements RecipeSerializer<NBTWipeRecipe> {
+    public static class Serializer implements RecipeSerializer<ConfigWipeRecipe> {
         public static final Serializer INSTANCE = new Serializer();
 
-        public static final MapCodec<NBTWipeRecipe> CODEC = RecipeSerializer.SHAPELESS_RECIPE.codec().xmap(NBTWipeRecipe::new, Function.identity());
-        public static final StreamCodec<RegistryFriendlyByteBuf, NBTWipeRecipe> STREAM_CODEC = RecipeSerializer.SHAPELESS_RECIPE.streamCodec().map(NBTWipeRecipe::new, Function.identity());
+        public static final MapCodec<ConfigWipeRecipe> CODEC = RecipeSerializer.SHAPELESS_RECIPE.codec().xmap(ConfigWipeRecipe::new, Function.identity());
+        public static final StreamCodec<RegistryFriendlyByteBuf, ConfigWipeRecipe> STREAM_CODEC = RecipeSerializer.SHAPELESS_RECIPE.streamCodec().map(ConfigWipeRecipe::new, Function.identity());
 
         @Override
-        public MapCodec<NBTWipeRecipe> codec() {
+        public MapCodec<ConfigWipeRecipe> codec() {
             return CODEC;
         }
 
         @Override
-        public StreamCodec<RegistryFriendlyByteBuf, NBTWipeRecipe> streamCodec() {
+        public StreamCodec<RegistryFriendlyByteBuf, ConfigWipeRecipe> streamCodec() {
             return STREAM_CODEC;
         }
 

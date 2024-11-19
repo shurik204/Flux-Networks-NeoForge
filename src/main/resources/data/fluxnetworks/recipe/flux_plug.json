@@ -1,6 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
-  "group": "fluxnetworks",
+  "category": "fluxnetworks",
   "pattern": [
     " c ",
     "cbc",
@@ -11,10 +11,11 @@
       "item": "fluxnetworks:flux_core"
     },
     "b": {
-      "item": "minecraft:redstone_block"
+      "item": "fluxnetworks:flux_block"
     }
   },
   "result": {
-    "item": "fluxnetworks:flux_point"
+    "id": "fluxnetworks:flux_plug",
+    "count": 1
   }
 }

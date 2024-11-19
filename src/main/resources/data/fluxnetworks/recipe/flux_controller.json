@@ -1,10 +1,10 @@
 {
   "type": "minecraft:crafting_shaped",
-  "group": "fluxnetworks",
+  "category": "fluxnetworks",
   "pattern": [
-    " c ",
-    "cbc",
-    " c "
+    "bcb",
+    "f f",
+    "bbb"
   ],
   "key": {
     "c": {
@@ -12,9 +12,13 @@
     },
     "b": {
       "item": "fluxnetworks:flux_block"
+    },
+    "f": {
+      "item": "fluxnetworks:flux_dust"
     }
   },
   "result": {
-    "item": "fluxnetworks:flux_plug"
+    "id": "fluxnetworks:flux_controller",
+    "count": 1
   }
 }

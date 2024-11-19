@@ -9,7 +9,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import sonar.fluxnetworks.api.FluxDataComponents;
-import sonar.fluxnetworks.common.data.FluxDataComponent;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;

@@ -1,6 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
-  "group": "fluxnetworks",
+  "category": "fluxnetworks",
   "pattern": [
     "bbb",
     "g g",
@@ -11,10 +11,11 @@
       "item": "fluxnetworks:flux_block"
     },
     "g": {
-      "tag": "forge:glass_panes"
+      "tag": "c:glass_panes"
     }
   },
   "result": {
-    "item": "fluxnetworks:basic_flux_storage"
+    "id": "fluxnetworks:basic_flux_storage",
+    "count": 1
   }
 }
