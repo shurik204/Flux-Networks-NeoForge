@@ -117,9 +117,7 @@ public final class FluxConstants {
     public static final String FLUX_DATA_COMPONENT = "flux_data";
     public static final String FLUX_CONFIG_COMPONENT = "device_config";
     public static final String STORED_ENERGY_COMPONENT = "stored_energy";
-
-    // NBT root key
-    public static final String FLUX_COLOR_COMPONENT = "flux_color";
+    public static final String FLUX_COLOR_COMPONENT = "color";
 
     // NBT key
     public static final String NETWORK_ID = "network_id";
@@ -134,6 +132,7 @@ public final class FluxConstants {
     public static final String FLAGS = "flags";
 
     public static final String DEVICE_TYPE = "device_type";
+    public static final String DEVICE_ITEM = "device_item";
     public static final String FORCED_LOADING = "forced_loading";
     public static final String CHUNK_LOADED = "chunk_loaded";
 

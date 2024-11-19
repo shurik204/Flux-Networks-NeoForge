@@ -1,14 +1,17 @@
 package sonar.fluxnetworks.common.connection;
 
 import net.minecraft.core.GlobalPos;
-import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import sonar.fluxnetworks.api.FluxConstants;
+import sonar.fluxnetworks.api.FluxDataComponents;
 import sonar.fluxnetworks.api.device.FluxDeviceType;
 import sonar.fluxnetworks.api.device.IFluxDevice;
+import sonar.fluxnetworks.common.data.FluxDataComponent;
 import sonar.fluxnetworks.common.device.TileFluxDevice;
 import sonar.fluxnetworks.common.util.FluxUtils;
 
@@ -93,8 +96,9 @@ public class PhantomFluxDevice implements IFluxDevice {
             tag.putBoolean(FluxConstants.SURGE_MODE, mSurgeMode);
             tag.putBoolean(FluxConstants.DISABLE_LIMIT, mDisableLimit);
             tag.putUUID(FluxConstants.PLAYER_UUID, mOwnerUUID);
-            tag.putLong(FluxConstants.BUFFER, mBuffer);
-            mDisplayStack.save(RegistryAccess.EMPTY, tag);
+            tag.putLong(FluxConstants.ENERGY, mBuffer);
+
+            tag.putString(FluxConstants.DEVICE_ITEM, mDisplayStack.getItemHolder().getRegisteredName());
         }
     }
 
@@ -113,13 +117,25 @@ public class PhantomFluxDevice implements IFluxDevice {
             mDisableLimit = tag.getBoolean(FluxConstants.DISABLE_LIMIT);
             mOwnerUUID = tag.getUUID(FluxConstants.PLAYER_UUID);
             mBuffer = tag.getLong(FluxConstants.ENERGY);
-            mDisplayStack = ItemStack.parse(RegistryAccess.EMPTY, tag).orElse(ItemStack.EMPTY);
+            mDisplayStack = createDisplayItemStack(tag);
         }
         if (type == FluxConstants.NBT_PHANTOM_UPDATE) {
             mForcedLoading = tag.getBoolean(FluxConstants.FORCED_LOADING);
             mChunkLoaded = tag.getBoolean(FluxConstants.CHUNK_LOADED);
             mChange = tag.getLong(FluxConstants.CHANGE);
         }
+    }
+
+    /**
+     * Constructs an item stack to display in the UI
+     * @param tag NBT compound
+     * @return display item stack
+     */
+    private static ItemStack createDisplayItemStack(CompoundTag tag) {
+        ItemStack stack = BuiltInRegistries.ITEM.get(ResourceLocation.parse(tag.getString(FluxConstants.DEVICE_ITEM))).getDefaultInstance();
+        stack.set(FluxDataComponents.FLUX_DATA, FluxDataComponent.EMPTY.withNetwork(tag.getInt(FluxConstants.NETWORK_ID)));
+        stack.set(FluxDataComponents.STORED_ENERGY, tag.getLong(FluxConstants.ENERGY));
+        return stack;
     }
 
     @Override

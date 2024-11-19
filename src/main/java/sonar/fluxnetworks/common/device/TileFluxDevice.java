@@ -294,7 +294,7 @@ public abstract class TileFluxDevice extends BlockEntity implements IFluxDevice 
                 tag.putUUID(FluxConstants.PLAYER_UUID, mOwnerUUID);
                 tag.putBoolean(FluxConstants.FORCED_LOADING, isForcedLoading());
                 tag.putBoolean(FluxConstants.CHUNK_LOADED, isChunkLoaded());
-                getDisplayStack().save(level.registryAccess(), tag);
+                tag.putString(FluxConstants.DEVICE_ITEM, getDisplayStack().getItemHolder().getRegisteredName());
             }
         }
     }

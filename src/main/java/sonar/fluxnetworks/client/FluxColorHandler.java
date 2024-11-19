@@ -133,23 +133,7 @@ public class FluxColorHandler implements BlockColor, ItemColor {
     public int getColor(@Nonnull ItemStack stack, int tintIndex) {
         // called every frame
         if (tintIndex == 1) {
-            Optional<Integer> color = stack.get(FluxDataComponents.FLUX_COLOR);
-            // TODO: what??????
-            if (color != null && color.isPresent()) {
-                /*if (FluxConfig.enableGuiDebug && FluxNetworks.modernUILoaded) {
-                    return NavigationHome.network.isInvalid() ? NO_NETWORK_COLOR : NavigationHome.network.getSetting
-                    (NetworkSettings.NETWORK_COLOR) | 0xff000000;
-                }*/
-                Screen screen = Minecraft.getInstance().screen;
-                if (screen instanceof GuiFluxCore gui) {
-                    return gui.getNetwork().getNetworkColor();
-                }
-            }
-            FluxDataComponent data = stack.get(FluxDataComponents.FLUX_DATA);
-            if (data != null) {
-                return ClientCache.getNetwork(data.networkId()).getNetworkColor();
-            }
-            return FluxConstants.INVALID_NETWORK_COLOR;
+            return FluxColorHandler.getColorForItem(stack);
         }
         return ~0;
     }
@@ -170,5 +154,25 @@ public class FluxColorHandler implements BlockColor, ItemColor {
             return FluxConstants.INVALID_NETWORK_COLOR;
         }
         return ~0;
+    }
+
+    public static int getColorForItem(ItemStack stack) {
+        // 1. Check if the color is defined in the stack
+        Optional<Integer> forcedColor = stack.get(FluxDataComponents.FLUX_COLOR);
+        if (forcedColor != null && forcedColor.isPresent()) {
+            return forcedColor.get();
+        }
+        // 2. If the item has a saved configuration, use network color
+        FluxDataComponent data = stack.get(FluxDataComponents.FLUX_DATA);
+        if (data != null) {
+            return ClientCache.getNetwork(data.networkId()).getNetworkColor();
+        }
+        // 3. Try grabbing color from the current screen
+        Screen screen = Minecraft.getInstance().screen;
+        if (screen instanceof GuiFluxCore gui) {
+            return gui.getNetwork().getNetworkColor();
+        }
+        // 4. If all else fails, use the default color
+        return FluxConstants.INVALID_NETWORK_COLOR;
     }
 }
