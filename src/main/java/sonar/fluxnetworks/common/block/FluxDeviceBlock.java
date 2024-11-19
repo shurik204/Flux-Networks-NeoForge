@@ -12,9 +12,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import sonar.fluxnetworks.api.FluxConstants;
-import sonar.fluxnetworks.api.FluxDataComponents;
-import sonar.fluxnetworks.common.data.FluxDataComponent;
 import sonar.fluxnetworks.register.RegistryItems;
 import sonar.fluxnetworks.common.device.TileFluxDevice;
 
@@ -57,12 +54,9 @@ public abstract class FluxDeviceBlock extends Block implements EntityBlock {
                             ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
         if (level.getBlockEntity(pos) instanceof TileFluxDevice device) {
-            FluxDataComponent component = stack.get(FluxDataComponents.FLUX_DATA);
-            if (component != null) {
-                // doing this client side to prevent network flickering when placing, we send a block update next
-                // tick anyway.
-                device.readCustomTag(component.asNbt(), FluxConstants.NBT_TILE_DROP);
-            }
+            // doing this client side to prevent network flickering when placing, we send a block update next
+            // tick anyway.
+            device.applyComponentsFromItemStack(stack);
             if (placer instanceof Player) {
                 device.setOwnerUUID(placer.getUUID());
             }

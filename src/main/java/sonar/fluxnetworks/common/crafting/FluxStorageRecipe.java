@@ -40,7 +40,7 @@ public class FluxStorageRecipe extends ShapedRecipe {
         // Put the total energy value into the resulting item
         result.set(FluxDataComponents.STORED_ENERGY, totalEnergy);
         // Copy device configuration from the first storage item (if present)
-        result.copyFrom(storageItems.getFirst(), FluxDataComponents.FLUX_DATA);
+        result.copyFrom(storageItems.getFirst(), FluxDataComponents.FLUX_CONFIG);
 
         return result;
     }

@@ -11,7 +11,7 @@ import sonar.fluxnetworks.api.FluxConstants;
 import sonar.fluxnetworks.api.FluxDataComponents;
 import sonar.fluxnetworks.api.device.FluxDeviceType;
 import sonar.fluxnetworks.api.device.IFluxDevice;
-import sonar.fluxnetworks.common.data.FluxDataComponent;
+import sonar.fluxnetworks.common.data.FluxDeviceConfigComponent;
 import sonar.fluxnetworks.common.device.TileFluxDevice;
 import sonar.fluxnetworks.common.util.FluxUtils;
 
@@ -133,7 +133,7 @@ public class PhantomFluxDevice implements IFluxDevice {
      */
     private static ItemStack createDisplayItemStack(CompoundTag tag) {
         ItemStack stack = BuiltInRegistries.ITEM.get(ResourceLocation.parse(tag.getString(FluxConstants.DEVICE_ITEM))).getDefaultInstance();
-        stack.set(FluxDataComponents.FLUX_DATA, FluxDataComponent.EMPTY.withNetwork(tag.getInt(FluxConstants.NETWORK_ID)));
+        stack.set(FluxDataComponents.FLUX_CONFIG, FluxDeviceConfigComponent.EMPTY.withNetwork(tag.getInt(FluxConstants.NETWORK_ID)));
         stack.set(FluxDataComponents.STORED_ENERGY, tag.getLong(FluxConstants.ENERGY));
         return stack;
     }

@@ -13,7 +13,7 @@ import sonar.fluxnetworks.FluxNetworks;
 import sonar.fluxnetworks.api.FluxDataComponents;
 import sonar.fluxnetworks.api.FluxTranslate;
 import sonar.fluxnetworks.api.energy.EnergyType;
-import sonar.fluxnetworks.common.data.FluxDataComponent;
+import sonar.fluxnetworks.common.data.FluxDeviceConfigComponent;
 import sonar.fluxnetworks.common.device.TileFluxDevice;
 import sonar.fluxnetworks.common.util.FluxUtils;
 
@@ -121,8 +121,8 @@ public class TOPIntegration implements Function<ITheOneProbe, Void> {
                                             @Nonnull IProbeHitData hitData) {
             if (level.getBlockEntity(hitData.getPos()) instanceof TileFluxDevice device) {
                 ItemStack displayStack = device.getDisplayStack().copy();
-                FluxDataComponent c = displayStack.getOrDefault(FluxDataComponents.FLUX_DATA, FluxDataComponent.EMPTY);
-                displayStack.set(FluxDataComponents.FLUX_DATA, c.withNetworkAndName(device.getNetworkID(), device.getCustomName()));
+                FluxDeviceConfigComponent c = displayStack.getOrDefault(FluxDataComponents.FLUX_CONFIG, FluxDeviceConfigComponent.EMPTY);
+                displayStack.set(FluxDataComponents.FLUX_CONFIG, c.withNetworkAndName(device.getNetworkID(), device.getCustomName()));
                 probeInfo.horizontal().item(displayStack)
                         .vertical().itemLabel(displayStack)
                         .text(Component.literal(TextStyleClass.MODNAME + FluxNetworks.NAME));

@@ -1,5 +1,6 @@
 package sonar.fluxnetworks.common.item;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Inventory;
@@ -17,7 +18,10 @@ import sonar.fluxnetworks.common.device.TileFluxStorage;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class ItemAdminConfigurator extends Item {
 
     public ItemAdminConfigurator(Properties props) {
@@ -49,8 +53,6 @@ public class ItemAdminConfigurator extends Item {
                                                   @Nonnull InteractionHand hand) {
         if (!level.isClientSide) {
             player.openMenu(new Provider(), buf -> buf.writeBoolean(false));
-//            NetworkHooks.openScreen((ServerPlayer) player,
-//                    new Provider(), data -> data.writeBoolean(false));
         }
         return InteractionResultHolder.success(player.getItemInHand(hand));
     }

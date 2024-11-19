@@ -19,7 +19,7 @@ import sonar.fluxnetworks.client.gui.button.EditButton;
 import sonar.fluxnetworks.client.gui.popup.PopupNetworkPassword;
 import sonar.fluxnetworks.common.connection.FluxMenu;
 import sonar.fluxnetworks.common.connection.FluxNetwork;
-import sonar.fluxnetworks.common.data.FluxDataComponent;
+import sonar.fluxnetworks.common.data.FluxDeviceConfigComponent;
 import sonar.fluxnetworks.common.item.ItemFluxConfigurator;
 import sonar.fluxnetworks.common.util.FluxUtils;
 
@@ -190,8 +190,8 @@ public class GuiTabSelection extends GuiTabPages<FluxNetwork> {
                         ClientCache.updateRecentPassword(mSelectedNetwork.getNetworkID(), p.mPassword.getValue());
                     }
                     if (menu.mProvider instanceof ItemFluxConfigurator.Provider p) {
-                        FluxDataComponent component = p.mStack.getOrDefault(FluxDataComponents.FLUX_DATA, FluxDataComponent.EMPTY);
-                        p.mStack.set(FluxDataComponents.FLUX_DATA, component.withNetwork(mSelectedNetwork.getNetworkID()));
+                        FluxDeviceConfigComponent component = p.mStack.getOrDefault(FluxDataComponents.FLUX_CONFIG, FluxDeviceConfigComponent.EMPTY);
+                        p.mStack.set(FluxDataComponents.FLUX_CONFIG, component.withNetwork(mSelectedNetwork.getNetworkID()));
                     }
                 }
                 closePopup();

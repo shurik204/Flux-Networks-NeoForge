@@ -1,6 +1,9 @@
 package sonar.fluxnetworks.common.device;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.locale.Language;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -8,7 +11,6 @@ import sonar.fluxnetworks.api.FluxConstants;
 import sonar.fluxnetworks.api.FluxDataComponents;
 import sonar.fluxnetworks.api.device.FluxDeviceType;
 import sonar.fluxnetworks.api.device.IFluxStorage;
-import sonar.fluxnetworks.common.data.FluxDataComponent;
 import sonar.fluxnetworks.common.util.FluxGuiStack;
 import sonar.fluxnetworks.register.*;
 
@@ -116,13 +118,13 @@ public abstract class TileFluxStorage extends TileFluxDevice implements IFluxSto
      */
     @Nonnull
     protected ItemStack writeToDisplayStack(@Nonnull ItemStack stack) {
-        FluxDataComponent component = stack.getOrDefault(FluxDataComponents.FLUX_DATA, FluxDataComponent.EMPTY);
         //noinspection ConstantConditions
         if (level.isClientSide)
             stack.set(FluxDataComponents.FLUX_COLOR, Optional.empty());
         else {
             stack.set(FluxDataComponents.FLUX_COLOR, Optional.of(getNetwork().getNetworkColor()));
         }
+        stack.set(DataComponents.CUSTOM_NAME, Component.literal(getCustomName().isBlank() ? Language.getInstance().getOrDefault(stack.getItem().getDescriptionId()) : getCustomName()));
         stack.set(FluxDataComponents.STORED_ENERGY, getTransferBuffer());
         return stack;
     }

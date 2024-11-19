@@ -114,7 +114,6 @@ public final class FluxConstants {
     public static final byte DEVICE_S2C_STORAGE_ENERGY = -2;
 
     // NBT sub-tag key
-    public static final String FLUX_DATA_COMPONENT = "flux_data";
     public static final String FLUX_CONFIG_COMPONENT = "device_config";
     public static final String STORED_ENERGY_COMPONENT = "stored_energy";
     public static final String FLUX_COLOR_COMPONENT = "color";

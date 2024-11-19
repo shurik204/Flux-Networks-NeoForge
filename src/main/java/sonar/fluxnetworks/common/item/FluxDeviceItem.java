@@ -13,7 +13,7 @@ import sonar.fluxnetworks.api.energy.EnergyType;
 import sonar.fluxnetworks.client.ClientCache;
 import sonar.fluxnetworks.common.block.FluxStorageBlock;
 import sonar.fluxnetworks.common.connection.FluxNetwork;
-import sonar.fluxnetworks.common.data.FluxDataComponent;
+import sonar.fluxnetworks.common.data.FluxDeviceConfigComponent;
 import sonar.fluxnetworks.register.RegistryTags;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -30,7 +30,7 @@ public class FluxDeviceItem extends BlockItem {
 
     @Override
     public Component getName(ItemStack stack) {
-        FluxDataComponent component = stack.get(FluxDataComponents.FLUX_DATA);
+        FluxDeviceConfigComponent component = stack.get(FluxDataComponents.FLUX_CONFIG);
         if (component != null) {
             Optional<String> value = component.customName();
             if (value.isPresent()) {
@@ -42,7 +42,7 @@ public class FluxDeviceItem extends BlockItem {
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        FluxDataComponent component = stack.get(FluxDataComponents.FLUX_DATA);
+        FluxDeviceConfigComponent component = stack.get(FluxDataComponents.FLUX_CONFIG);
         Long storedEnergy = stack.get(FluxDataComponents.STORED_ENERGY);
         if (component != null) {
             final FluxNetwork network = ClientCache.getNetwork(component.networkId());

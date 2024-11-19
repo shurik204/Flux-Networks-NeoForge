@@ -1,8 +1,8 @@
-// 1.20.1	2023-07-18T20:32:51.8948444	Loot Tables
-faa36cf12074938baedb45cf4b362636378f0c0b data/fluxnetworks/loot_tables/blocks/basic_flux_storage.json
-e1a2f1b88de33b91ad819a1a3c93004456ad5d60 data/fluxnetworks/loot_tables/blocks/flux_block.json
-f2dd1083bac7d816848b0c44c1d7d5df25eb7e8d data/fluxnetworks/loot_tables/blocks/flux_controller.json
-2226a152adf9977e961148efae2ea747e27c9b69 data/fluxnetworks/loot_tables/blocks/flux_plug.json
-563352e296fa0911cc261d3ff392830fd5096b42 data/fluxnetworks/loot_tables/blocks/flux_point.json
-e83b8c75db860cefdbe45a158da22f2a7411c94c data/fluxnetworks/loot_tables/blocks/gargantuan_flux_storage.json
-ccd7af41e9f1f622149ca4e84f682151c9051c1d data/fluxnetworks/loot_tables/blocks/herculean_flux_storage.json
+// 1.21.1	2024-11-19T19:55:39.964845532	Loot Tables
+b97018fc875d17127855397c0b6fbac920037da6 data/fluxnetworks/loot_table/blocks/basic_flux_storage.json
+e1a2f1b88de33b91ad819a1a3c93004456ad5d60 data/fluxnetworks/loot_table/blocks/flux_block.json
+04f8beed941389a795eb32f73a8ef833467ef1ea data/fluxnetworks/loot_table/blocks/flux_controller.json
+d948cfb9e018f2d48fe83b198f81f1845d3da41e data/fluxnetworks/loot_table/blocks/flux_plug.json
+60b489ca3addef7bb3c35378ae4ef5aa4be72fc3 data/fluxnetworks/loot_table/blocks/flux_point.json
+ebd2783ef40d095a9a6456102fb9a7689526e601 data/fluxnetworks/loot_table/blocks/gargantuan_flux_storage.json
+eadc9f6a86243268e23133bc8e472bda8602717d data/fluxnetworks/loot_table/blocks/herculean_flux_storage.json

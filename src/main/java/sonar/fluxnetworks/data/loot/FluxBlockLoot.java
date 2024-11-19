@@ -16,6 +16,7 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import sonar.fluxnetworks.api.FluxDataComponents;
 import sonar.fluxnetworks.common.block.FluxDeviceBlock;
 import sonar.fluxnetworks.common.device.TileFluxDevice;
 import sonar.fluxnetworks.register.RegistryBlocks;
@@ -69,21 +70,13 @@ public class FluxBlockLoot extends BlockLootSubProvider {
         if (!(block instanceof FluxDeviceBlock)) {
             throw new IllegalArgumentException();
         }
-        CopyComponentsFunction.Builder copyNbt = CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY);
-        // replace to a sub NBT compound tag to avoid conflicts with vanilla or other mods
-//        copyNbt.copy(FluxConstants.NETWORK_ID, FluxConstants.FLUX_DATA_COMPONENT + '.' + FluxConstants.NETWORK_ID);
-//        copyNbt.copy(FluxConstants.CUSTOM_NAME, FluxConstants.FLUX_DATA_COMPONENT + '.' + FluxConstants.CUSTOM_NAME);
-//        copyNbt.copy(FluxConstants.PRIORITY, FluxConstants.FLUX_DATA_COMPONENT + '.' + FluxConstants.PRIORITY);
-//        copyNbt.copy(FluxConstants.LIMIT, FluxConstants.FLUX_DATA_COMPONENT + '.' + FluxConstants.LIMIT);
-//        if (block instanceof FluxStorageBlock) {
-//            copyNbt.copy(FluxConstants.ENERGY, FluxConstants.FLUX_DATA_COMPONENT + '.' + FluxConstants.ENERGY);
-//        } else {
-//            copyNbt.copy(FluxConstants.BUFFER, FluxConstants.FLUX_DATA_COMPONENT + '.' + FluxConstants.BUFFER);
-//        }
+        CopyComponentsFunction.Builder copyComponent = CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY);
+        copyComponent.include(FluxDataComponents.FLUX_CONFIG);
+        copyComponent.include(FluxDataComponents.STORED_ENERGY);
         LootPool.Builder pool = LootPool.lootPool()
                 .setRolls(ConstantValue.exactly(1))
                 .add(LootItem.lootTableItem(block)
-                        .apply(copyNbt));
+                        .apply(copyComponent));
         return LootTable.lootTable().withPool(applyExplosionCondition(block, pool));
     }
 }

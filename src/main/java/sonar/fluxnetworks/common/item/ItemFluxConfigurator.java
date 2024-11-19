@@ -13,16 +13,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import sonar.fluxnetworks.api.FluxConstants;
 import sonar.fluxnetworks.api.FluxDataComponents;
 import sonar.fluxnetworks.api.FluxTranslate;
 import sonar.fluxnetworks.api.device.IFluxProvider;
 import sonar.fluxnetworks.api.energy.EnergyType;
-import sonar.fluxnetworks.api.misc.FluxConfigurationType;
 import sonar.fluxnetworks.client.ClientCache;
 import sonar.fluxnetworks.common.connection.FluxMenu;
 import sonar.fluxnetworks.common.connection.FluxNetwork;
-import sonar.fluxnetworks.common.data.FluxDataComponent;
+import sonar.fluxnetworks.common.data.FluxDeviceConfigComponent;
 import sonar.fluxnetworks.common.device.TileFluxDevice;
 
 import javax.annotation.Nonnull;
@@ -53,25 +51,21 @@ public class ItemFluxConfigurator extends Item {
                 return InteractionResult.FAIL;
             }
             if (player.isShiftKeyDown()) {
-                FluxDataComponent component = stack.get(FluxDataComponents.FLUX_CONFIG);
-                if (component != null) {
-                    for (FluxConfigurationType type : FluxConfigurationType.VALUES) {
-                        type.copy(player, component.asNbt(), device);
-                    }
+                FluxDeviceConfigComponent config = device.collectComponents().get(FluxDataComponents.FLUX_CONFIG);
+                if (config != null) {
+                    stack.set(FluxDataComponents.FLUX_CONFIG, config);
                     player.displayClientMessage(FluxTranslate.CONFIG_COPIED, false);
                 }
             } else {
-                FluxDataComponent component = stack.get(FluxDataComponents.FLUX_CONFIG);
-                if (component != null) {
-                    for (FluxConfigurationType type : FluxConfigurationType.VALUES) {
-                        type.paste(player, component.asNbt(), device);
-                    }
+                FluxDeviceConfigComponent config = stack.get(FluxDataComponents.FLUX_CONFIG);
+                if (config != null) {
+                    device.applyComponentsFromItemStack(stack);
                     player.displayClientMessage(FluxTranslate.CONFIG_PASTED, false);
                 }
             }
             return InteractionResult.SUCCESS;
         }
-        player.openMenu(new Provider(stack), buf -> buf.writeBoolean(true));
+        player.openMenu(new Provider(stack), buf -> buf.writeBoolean(false));
         return InteractionResult.SUCCESS;
     }
 
@@ -84,7 +78,7 @@ public class ItemFluxConfigurator extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        FluxDataComponent component = stack.get(FluxDataComponents.FLUX_CONFIG);
+        FluxDeviceConfigComponent component = stack.get(FluxDataComponents.FLUX_CONFIG);
         if (component != null) {
             final FluxNetwork network = ClientCache.getNetwork(component.networkId());
             if (network.isValid()) {
@@ -114,8 +108,7 @@ public class ItemFluxConfigurator extends Item {
 
         @Override
         public int getNetworkID() {
-            FluxDataComponent config = mStack.get(FluxDataComponents.FLUX_CONFIG);
-            return config != null ? config.networkId() : FluxConstants.INVALID_NETWORK_ID;
+            return mStack.getOrDefault(FluxDataComponents.FLUX_CONFIG, FluxDeviceConfigComponent.EMPTY).networkId();
         }
 
         @Override

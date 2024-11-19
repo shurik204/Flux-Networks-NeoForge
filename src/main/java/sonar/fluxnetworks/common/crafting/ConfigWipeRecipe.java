@@ -33,7 +33,7 @@ public class ConfigWipeRecipe extends ShapelessRecipe {
 
     @Override
     public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
-        ItemStack originalStack = input.items().stream().filter(stack -> !stack.isEmpty() && stack.get(FluxDataComponents.FLUX_DATA) != null).findFirst().orElse(null);
+        ItemStack originalStack = input.items().stream().filter(stack -> !stack.isEmpty() && stack.get(FluxDataComponents.FLUX_CONFIG) != null).findFirst().orElse(null);
         ItemStack output = super.assemble(input, registries);
 
         if (originalStack != null) {

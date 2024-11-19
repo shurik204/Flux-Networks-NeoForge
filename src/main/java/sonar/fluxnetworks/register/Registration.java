@@ -17,6 +17,7 @@ import sonar.fluxnetworks.common.integration.TOPIntegration;
 import sonar.fluxnetworks.common.util.EnergyUtils;
 import sonar.fluxnetworks.data.loot.FluxLootTableProvider;
 import sonar.fluxnetworks.data.tags.FluxBlockTagsProvider;
+import sonar.fluxnetworks.data.tags.FluxItemTagsProvider;
 
 import javax.annotation.Nonnull;
 
@@ -43,8 +44,10 @@ public class Registration {
         DataGenerator generator = event.getGenerator();
         PackOutput packOutput = generator.getPackOutput();
         if (event.includeServer()) {
+            FluxBlockTagsProvider blockTags = new FluxBlockTagsProvider(packOutput, event.getLookupProvider(), event.getExistingFileHelper());
             generator.addProvider(true, new FluxLootTableProvider(packOutput, event.getLookupProvider()));
-            generator.addProvider(true, new FluxBlockTagsProvider(packOutput, event.getLookupProvider(), event.getExistingFileHelper()));
+            generator.addProvider(true, blockTags);
+            generator.addProvider(true, new FluxItemTagsProvider(packOutput, event.getLookupProvider(), blockTags.contentsGetter(), event.getExistingFileHelper()));
         }
     }
 

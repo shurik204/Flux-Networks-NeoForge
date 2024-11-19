@@ -5,6 +5,7 @@ import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -14,7 +15,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import sonar.fluxnetworks.api.FluxConstants;
 import sonar.fluxnetworks.api.FluxDataComponents;
 import sonar.fluxnetworks.client.gui.basic.GuiFluxCore;
-import sonar.fluxnetworks.common.data.FluxDataComponent;
+import sonar.fluxnetworks.common.data.FluxDeviceConfigComponent;
 import sonar.fluxnetworks.common.device.TileFluxDevice;
 
 import javax.annotation.Nonnull;
@@ -139,21 +140,7 @@ public class FluxColorHandler implements BlockColor, ItemColor {
     }
 
     public static int colorMultiplierForConfigurator(ItemStack stack, int tintIndex) {
-        if (tintIndex == 1) {
-            /*Screen screen = Minecraft.getInstance().currentScreen;
-            if (screen instanceof GuiFluxCore) {
-                GuiFluxCore gui = (GuiFluxCore) screen;
-                if (gui.getContainer().bridge instanceof ItemFluxConfigurator.MenuBridge) {
-                    return gui.network.getNetworkColor();
-                }
-            }*/
-            FluxDataComponent component = stack.get(FluxDataComponents.FLUX_CONFIG);
-            if (component != null) {
-                return ClientCache.getNetwork(component.networkId()).getNetworkColor();
-            }
-            return FluxConstants.INVALID_NETWORK_COLOR;
-        }
-        return ~0;
+        return tintIndex == 1 ? FastColor.ARGB32.opaque(getColorForItem(stack)) : -1;
     }
 
     public static int getColorForItem(ItemStack stack) {
@@ -163,7 +150,7 @@ public class FluxColorHandler implements BlockColor, ItemColor {
             return forcedColor.get();
         }
         // 2. If the item has a saved configuration, use network color
-        FluxDataComponent data = stack.get(FluxDataComponents.FLUX_DATA);
+        FluxDeviceConfigComponent data = stack.get(FluxDataComponents.FLUX_CONFIG);
         if (data != null) {
             return ClientCache.getNetwork(data.networkId()).getNetworkColor();
         }

@@ -2,6 +2,7 @@ package sonar.fluxnetworks.common.device;
 
 import net.minecraft.Util;
 import net.minecraft.core.*;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
@@ -17,16 +18,19 @@ import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
 import sonar.fluxnetworks.FluxConfig;
 import sonar.fluxnetworks.api.FluxConstants;
+import sonar.fluxnetworks.api.FluxDataComponents;
 import sonar.fluxnetworks.api.FluxTranslate;
 import sonar.fluxnetworks.api.device.IFluxDevice;
 import sonar.fluxnetworks.client.ClientCache;
 import sonar.fluxnetworks.common.connection.*;
+import sonar.fluxnetworks.common.data.FluxDeviceConfigComponent;
 import sonar.fluxnetworks.common.level.FluxChunkLoading;
 import sonar.fluxnetworks.common.util.FluxUtils;
 import sonar.fluxnetworks.register.Channel;
 import sonar.fluxnetworks.register.Messages;
 
 import javax.annotation.*;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -301,15 +305,37 @@ public abstract class TileFluxDevice extends BlockEntity implements IFluxDevice 
 
     @Override
     protected void applyImplicitComponents(DataComponentInput componentInput) {
+        FluxDeviceConfigComponent configuration = componentInput.get(FluxDataComponents.FLUX_CONFIG);
+        if (configuration == null) { return; }
+        Long energy = componentInput.get(FluxDataComponents.STORED_ENERGY);
+
+        mNetworkID = configuration.networkId();
+        if (mNetwork.getNetworkID() != configuration.networkId()) {
+            this.onFirstTick();
+        }
+        if (configuration.customName().isPresent()) {
+            mCustomName = configuration.customName().get();
+        }
+        getTransferHandler().applyConfiguration(configuration, energy != null ? energy : getTransferBuffer());
+
+        if (level.isClientSide) {
+            mClientColor = FluxUtils.getModifiedColor(ClientCache.getNetwork(mNetworkID).getNetworkColor(), 1.1f);
+        }
+
         super.applyImplicitComponents(componentInput);
-        // TODO: finish
-        // FluxDataComponent config = componentInput.get(FluxDataComponents.FLUX_DATA);
-        // if (config != null) {
-        //     mNetworkID = config.networkId();
-        // }
     }
 
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder components) {
+        FluxDeviceConfigComponent configuration = new FluxDeviceConfigComponent(mNetworkID, Optional.of(mCustomName),
+                Optional.of(getRawPriority()), Optional.of(getSurgeMode()),
+                Optional.of(getRawLimit()), Optional.of(getDisableLimit())
+        );
+        components.set(FluxDataComponents.FLUX_CONFIG, configuration);
+        components.set(FluxDataComponents.STORED_ENERGY, getTransferBuffer());
 
+        super.collectImplicitComponents(components);
+    }
 
     @Override
     public void readCustomTag(@Nonnull CompoundTag tag, byte type) {
