@@ -10,7 +10,7 @@ operator fun String.invoke(): String {
 }
 ///
 
-version = "mod.version"()
+version = file("VERSION").readText().trim()
 group = "mod.group_id"()
 
 repositories {
@@ -201,7 +201,7 @@ val generateModMetadata = tasks.register<ProcessResources>("generateModMetadata"
         "mod_id" to "mod.id"(),
         "mod_name" to "mod.name"(),
         "mod_license" to "mod.license"(),
-        "mod_version" to "mod.version"(),
+        "mod_version" to project.version.toString(),
         "mod_authors" to "mod.authors"(),
         "mod_description" to "mod.description"()
     )
