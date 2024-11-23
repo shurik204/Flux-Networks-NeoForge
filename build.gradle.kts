@@ -211,6 +211,13 @@ val generateModMetadata = tasks.register<ProcessResources>("generateModMetadata"
     into("build/generated/sources/modMetadata")
 }
 
+val buildRelease = tasks.register("buildRelease") {
+    group = "build"
+
+    dependsOn("runData")
+    dependsOn("build")
+}
+
 // Include the output of "generateModMetadata" as an input directory for the build
 // this works with both building through Gradle and the IDE.
 sourceSets.main.configure {
