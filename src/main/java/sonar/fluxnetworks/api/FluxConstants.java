@@ -114,35 +114,38 @@ public final class FluxConstants {
     public static final byte DEVICE_S2C_STORAGE_ENERGY = -2;
 
     // NBT sub-tag key
-    public static final String TAG_FLUX_DATA = "FluxData";
-    public static final String TAG_FLUX_CONFIG = "FluxConfig";
-
-    // NBT root key
-    public static final String FLUX_COLOR = "FluxColor";
+    public static final String FLUX_CONFIG_COMPONENT = "device_config";
+    public static final String STORED_ENERGY_COMPONENT = "stored_energy";
+    public static final String FLUX_COLOR_COMPONENT = "color";
 
     // NBT key
-    public static final String NETWORK_ID = "networkID";
-    public static final String CUSTOM_NAME = "customName";
+    public static final String NETWORK_ID = "network_id";
+    public static final String CUSTOM_NAME = "custom_name";
     public static final String PRIORITY = "priority";
     public static final String LIMIT = "limit";
-    public static final String SURGE_MODE = "surgeMode";
-    public static final String DISABLE_LIMIT = "disableLimit";
-    public static final String PLAYER_UUID = "playerUUID";
+    public static final String SURGE_MODE = "surge_mode";
+    public static final String DISABLE_LIMIT = "disable_limit";
+    public static final String PLAYER_UUID = "player_uuid";
 
-    public static final String CLIENT_COLOR = "clientColor";
+    public static final String CLIENT_COLOR = "client_color";
     public static final String FLAGS = "flags";
 
-    public static final String DEVICE_TYPE = "deviceType";
-    public static final String FORCED_LOADING = "forcedLoading";
-    public static final String CHUNK_LOADED = "chunkLoaded";
+    public static final String DEVICE_TYPE = "device_type";
+    public static final String DEVICE_ITEM = "device_item";
+    public static final String FORCED_LOADING = "forced_loading";
+    public static final String CHUNK_LOADED = "chunk_loaded";
 
-    public static final String BUFFER = "buffer";
     public static final String ENERGY = "energy"; // equals to buffer, but with different display text
     public static final String CHANGE = "change";
 
+    public static final String SUPER_ADMIN = "super_admin";
+    public static final String WIRELESS_MODE = "wireless_mode";
+    public static final String WIRELESS_NETWORK = "wireless_network";
+
     static {
-        // we expect all constants are inline at compile-time
-        FluxNetworks.LOGGER.warn("FluxConstants is class loading, this shouldn't happen...");
+        // All constants are expected to be inlined at compile-time
+        // TODO: Should this be an error instead?
+        FluxNetworks.LOGGER.warn("FluxConstants was class-loaded and initialized, this shouldn't happen...");
         assert false;
     }
 

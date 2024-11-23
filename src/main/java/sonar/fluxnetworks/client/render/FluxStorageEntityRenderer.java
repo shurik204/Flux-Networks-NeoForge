@@ -7,7 +7,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
-import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import sonar.fluxnetworks.common.device.TileFluxStorage;
 
@@ -75,19 +74,19 @@ public class FluxStorageEntityRenderer implements BlockEntityRenderer<TileFluxSt
         stack.mulPose(dir.getRotation());
         stack.translate(-0.5, -0.5, -0.5);
         Matrix4f pose = stack.last().pose();
-        Matrix3f normal = stack.last().normal();
-        consumer.vertex(pose, x, y, z - height).color(r, g, b, ALPHA)
-                .uv(x, z - height).overlayCoords(overlay).uv2(LightTexture.FULL_BRIGHT)
-                .normal(normal, 0, normalY, 0).endVertex();
-        consumer.vertex(pose, x + width, y, z - height).color(r, g, b, ALPHA)
-                .uv(x + width, z - height).overlayCoords(overlay).uv2(LightTexture.FULL_BRIGHT)
-                .normal(normal, 0, normalY, 0).endVertex();
-        consumer.vertex(pose, x + width, y, z).color(r, g, b, ALPHA)
-                .uv(x + width, z).overlayCoords(overlay).uv2(LightTexture.FULL_BRIGHT)
-                .normal(normal, 0, normalY, 0).endVertex();
-        consumer.vertex(pose, x, y, z).color(r, g, b, ALPHA)
-                .uv(x, z).overlayCoords(overlay).uv2(LightTexture.FULL_BRIGHT)
-                .normal(normal, 0, normalY, 0).endVertex();
+        PoseStack.Pose normal = stack.last();
+        consumer.addVertex(pose, x, y, z - height).setColor(r, g, b, ALPHA)
+                .setUv(x, z - height).setOverlay(overlay).setLight(LightTexture.FULL_BRIGHT)
+                .setNormal(normal, 0, normalY, 0);
+        consumer.addVertex(pose, x + width, y, z - height).setColor(r, g, b, ALPHA)
+                .setUv(x + width, z - height).setOverlay(overlay).setLight(LightTexture.FULL_BRIGHT)
+                .setNormal(normal, 0, normalY, 0);
+        consumer.addVertex(pose, x + width, y, z).setColor(r, g, b, ALPHA)
+                .setUv(x + width, z).setOverlay(overlay).setLight(LightTexture.FULL_BRIGHT)
+                .setNormal(normal, 0, normalY, 0);
+        consumer.addVertex(pose, x, y, z).setColor(r, g, b, ALPHA)
+                .setUv(x, z).setOverlay(overlay).setLight(LightTexture.FULL_BRIGHT)
+                .setNormal(normal, 0, normalY, 0);
         stack.popPose();
     }
 }

@@ -1,5 +1,6 @@
 package sonar.fluxnetworks.common.item;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Inventory;
@@ -8,17 +9,19 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.fml.util.thread.EffectiveSide;
-import net.minecraftforge.network.NetworkHooks;
+import net.neoforged.fml.util.thread.EffectiveSide;
 import sonar.fluxnetworks.api.device.IFluxProvider;
 import sonar.fluxnetworks.client.ClientCache;
-import sonar.fluxnetworks.common.capability.FluxPlayer;
+import sonar.fluxnetworks.common.data.FluxPlayerData;
 import sonar.fluxnetworks.common.connection.FluxMenu;
 import sonar.fluxnetworks.common.device.TileFluxStorage;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class ItemAdminConfigurator extends Item {
 
     public ItemAdminConfigurator(Properties props) {
@@ -35,7 +38,7 @@ public class ItemAdminConfigurator extends Item {
             return InteractionResult.PASS;
         }
         if (player.isShiftKeyDown() &&
-                FluxPlayer.isPlayerSuperAdmin(player) &&
+                FluxPlayerData.isPlayerSuperAdmin((ServerPlayer) player) &&
                 context.getLevel().getBlockEntity(context.getClickedPos()) instanceof TileFluxStorage storage &&
                 storage.canPlayerAccess(player)) {
             storage.fillUp();
@@ -49,8 +52,7 @@ public class ItemAdminConfigurator extends Item {
     public InteractionResultHolder<ItemStack> use(@Nonnull Level level, @Nonnull Player player,
                                                   @Nonnull InteractionHand hand) {
         if (!level.isClientSide) {
-            NetworkHooks.openScreen((ServerPlayer) player,
-                    new Provider(), buf -> buf.writeBoolean(false));
+            player.openMenu(new Provider(), buf -> buf.writeBoolean(false));
         }
         return InteractionResultHolder.success(player.getItemInHand(hand));
     }

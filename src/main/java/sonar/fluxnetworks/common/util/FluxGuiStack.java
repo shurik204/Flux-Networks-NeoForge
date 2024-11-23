@@ -1,38 +1,24 @@
 package sonar.fluxnetworks.common.util;
 
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
-import sonar.fluxnetworks.api.FluxConstants;
+import sonar.fluxnetworks.api.FluxDataComponents;
 import sonar.fluxnetworks.register.RegistryBlocks;
+
+import java.util.Optional;
 
 public class FluxGuiStack {
 
-    public static final ItemStack FLUX_PLUG;
-    public static final ItemStack FLUX_POINT;
-    public static final ItemStack FLUX_CONTROLLER;
+    public static final ItemStack FLUX_PLUG = new ItemStack(RegistryBlocks.FLUX_PLUG.get());
+    public static final ItemStack FLUX_POINT = new ItemStack(RegistryBlocks.FLUX_POINT.get());
+    public static final ItemStack FLUX_CONTROLLER = new ItemStack(RegistryBlocks.FLUX_CONTROLLER.get());
 
-    public static final ItemStack BASIC_STORAGE;
-    public static final ItemStack HERCULEAN_STORAGE;
-    public static final ItemStack GARGANTUAN_STORAGE;
+    public static final ItemStack BASIC_STORAGE = new ItemStack(RegistryBlocks.BASIC_FLUX_STORAGE.get());
+    public static final ItemStack HERCULEAN_STORAGE = new ItemStack(RegistryBlocks.HERCULEAN_FLUX_STORAGE.get());
+    public static final ItemStack GARGANTUAN_STORAGE = new ItemStack(RegistryBlocks.GARGANTUAN_FLUX_STORAGE.get());
 
     static {
-        ItemStack stack1 = new ItemStack(RegistryBlocks.FLUX_PLUG.get());
-        ItemStack stack2 = new ItemStack(RegistryBlocks.FLUX_POINT.get());
-        ItemStack stack3 = new ItemStack(RegistryBlocks.FLUX_CONTROLLER.get());
-        ItemStack stack4 = new ItemStack(RegistryBlocks.BASIC_FLUX_STORAGE.get());
-        ItemStack stack5 = new ItemStack(RegistryBlocks.HERCULEAN_FLUX_STORAGE.get());
-        ItemStack stack6 = new ItemStack(RegistryBlocks.GARGANTUAN_FLUX_STORAGE.get());
-        CompoundTag tag = stack1.getOrCreateTag();
-        tag.putBoolean(FluxConstants.FLUX_COLOR, true);
-        tag = stack2.getOrCreateTag();
-        tag.putBoolean(FluxConstants.FLUX_COLOR, true);
-        tag = stack3.getOrCreateTag();
-        tag.putBoolean(FluxConstants.FLUX_COLOR, true);
-        FLUX_PLUG = stack1;
-        FLUX_POINT = stack2;
-        FLUX_CONTROLLER = stack3;
-        BASIC_STORAGE = stack4;
-        HERCULEAN_STORAGE = stack5;
-        GARGANTUAN_STORAGE = stack6;
+        FLUX_PLUG.set(FluxDataComponents.FLUX_COLOR, Optional.empty());
+        FLUX_POINT.set(FluxDataComponents.FLUX_COLOR, Optional.empty());
+        FLUX_CONTROLLER.set(FluxDataComponents.FLUX_COLOR, Optional.empty());
     }
 }

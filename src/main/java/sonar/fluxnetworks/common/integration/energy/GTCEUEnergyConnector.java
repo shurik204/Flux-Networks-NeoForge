@@ -2,7 +2,7 @@ package sonar.fluxnetworks.common.integration.energy;
 
 import com.gregtechceu.gtceu.api.capability.IElectricItem;
 import com.gregtechceu.gtceu.api.capability.IEnergyContainer;
-import com.gregtechceu.gtceu.api.capability.forge.GTCapability;
+import com.gregtechceu.gtceu.api.capability.GTCapability;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -18,7 +18,7 @@ public class GTCEUEnergyConnector implements IBlockEnergyConnector, IItemEnergyC
 
     @Override
     public boolean hasCapability(@Nonnull BlockEntity target, @Nonnull Direction side) {
-        return !target.isRemoved() && target.getCapability(GTCapability.CAPABILITY_ENERGY_CONTAINER, side).isPresent();
+        return !target.isRemoved() && FluxUtils.get(target, GTCapability.CAPABILITY_ENERGY_CONTAINER, side) != null;
     }
 
     @Override
@@ -76,7 +76,7 @@ public class GTCEUEnergyConnector implements IBlockEnergyConnector, IItemEnergyC
 
     @Override
     public boolean hasCapability(@Nonnull ItemStack stack) {
-        return !stack.isEmpty() && stack.getCapability(GTCapability.CAPABILITY_ELECTRIC_ITEM).isPresent();
+        return !stack.isEmpty() && stack.getCapability(GTCapability.CAPABILITY_ELECTRIC_ITEM) != null;
     }
 
     @Override

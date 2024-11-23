@@ -18,13 +18,13 @@ public class FNEnergyConnector implements IBlockEnergyConnector, IItemEnergyConn
 
     @Override
     public boolean hasCapability(@Nonnull BlockEntity target, @Nonnull Direction side) {
-        return !target.isRemoved() && target.getCapability(FluxCapabilities.FN_ENERGY_STORAGE, side).isPresent();
+        return !target.isRemoved() && FluxCapabilities.BLOCK.getCapability(target.getLevel(), target.getBlockPos(), target.getBlockState(), target, side) != null;
     }
 
     @Override
     public boolean canSendTo(@Nonnull BlockEntity target, @Nonnull Direction side) {
         if (!target.isRemoved()) {
-            IFNEnergyStorage storage = FluxUtils.get(target, FluxCapabilities.FN_ENERGY_STORAGE, side);
+            IFNEnergyStorage storage = FluxUtils.get(target, FluxCapabilities.BLOCK, side);
             return storage != null && storage.canReceive();
         }
         return false;
@@ -33,7 +33,7 @@ public class FNEnergyConnector implements IBlockEnergyConnector, IItemEnergyConn
     @Override
     public boolean canReceiveFrom(@Nonnull BlockEntity target, @Nonnull Direction side) {
         if (!target.isRemoved()) {
-            IFNEnergyStorage storage = FluxUtils.get(target, FluxCapabilities.FN_ENERGY_STORAGE, side);
+            IFNEnergyStorage storage = FluxUtils.get(target, FluxCapabilities.BLOCK, side);
             return storage != null && storage.canExtract();
         }
         return false;
@@ -41,25 +41,25 @@ public class FNEnergyConnector implements IBlockEnergyConnector, IItemEnergyConn
 
     @Override
     public long sendTo(long amount, @Nonnull BlockEntity target, @Nonnull Direction side, boolean simulate) {
-        IFNEnergyStorage storage = FluxUtils.get(target, FluxCapabilities.FN_ENERGY_STORAGE, side);
+        IFNEnergyStorage storage = FluxUtils.get(target, FluxCapabilities.BLOCK, side);
         return storage == null ? 0 : storage.receiveEnergyL(amount, simulate);
     }
 
     @Override
     public long receiveFrom(long amount, @Nonnull BlockEntity target, @Nonnull Direction side, boolean simulate) {
-        IFNEnergyStorage storage = FluxUtils.get(target, FluxCapabilities.FN_ENERGY_STORAGE, side);
+        IFNEnergyStorage storage = FluxUtils.get(target, FluxCapabilities.BLOCK, side);
         return storage == null ? 0 : storage.extractEnergyL(amount, simulate);
     }
 
     @Override
     public boolean hasCapability(@Nonnull ItemStack stack) {
-        return !stack.isEmpty() && stack.getCapability(FluxCapabilities.FN_ENERGY_STORAGE).isPresent();
+        return !stack.isEmpty() && stack.getCapability(FluxCapabilities.ITEM) != null;
     }
 
     @Override
     public boolean canSendTo(@Nonnull ItemStack stack) {
         if (!stack.isEmpty()) {
-            IFNEnergyStorage storage = FluxUtils.get(stack, FluxCapabilities.FN_ENERGY_STORAGE);
+            IFNEnergyStorage storage = FluxUtils.get(stack, FluxCapabilities.ITEM);
             return storage != null && storage.canReceive();
         }
         return false;
@@ -68,7 +68,7 @@ public class FNEnergyConnector implements IBlockEnergyConnector, IItemEnergyConn
     @Override
     public boolean canReceiveFrom(@Nonnull ItemStack stack) {
         if (!stack.isEmpty()) {
-            IFNEnergyStorage storage = FluxUtils.get(stack, FluxCapabilities.FN_ENERGY_STORAGE);
+            IFNEnergyStorage storage = FluxUtils.get(stack, FluxCapabilities.ITEM);
             return storage != null && storage.canExtract();
         }
         return false;
@@ -76,13 +76,13 @@ public class FNEnergyConnector implements IBlockEnergyConnector, IItemEnergyConn
 
     @Override
     public long sendTo(long amount, @Nonnull ItemStack stack, boolean simulate) {
-        IFNEnergyStorage storage = FluxUtils.get(stack, FluxCapabilities.FN_ENERGY_STORAGE);
+        IFNEnergyStorage storage = FluxUtils.get(stack, FluxCapabilities.ITEM);
         return storage == null ? 0 : storage.receiveEnergyL(amount, simulate);
     }
 
     @Override
     public long receiveFrom(long amount, @Nonnull ItemStack stack, boolean simulate) {
-        IFNEnergyStorage storage = FluxUtils.get(stack, FluxCapabilities.FN_ENERGY_STORAGE);
+        IFNEnergyStorage storage = FluxUtils.get(stack, FluxCapabilities.ITEM);
         return storage == null ? 0 : storage.extractEnergyL(amount, simulate);
     }
 }

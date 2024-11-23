@@ -1,17 +1,21 @@
 package sonar.fluxnetworks.common.device;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.locale.Language;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import sonar.fluxnetworks.api.FluxConstants;
+import sonar.fluxnetworks.api.FluxDataComponents;
 import sonar.fluxnetworks.api.device.FluxDeviceType;
 import sonar.fluxnetworks.api.device.IFluxStorage;
 import sonar.fluxnetworks.common.util.FluxGuiStack;
 import sonar.fluxnetworks.register.*;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 
 public abstract class TileFluxStorage extends TileFluxDevice implements IFluxStorage {
 
@@ -114,15 +118,14 @@ public abstract class TileFluxStorage extends TileFluxDevice implements IFluxSto
      */
     @Nonnull
     protected ItemStack writeToDisplayStack(@Nonnull ItemStack stack) {
-        CompoundTag subTag = stack.getOrCreateTagElement(FluxConstants.TAG_FLUX_DATA);
         //noinspection ConstantConditions
         if (level.isClientSide)
-            stack.getOrCreateTag().putBoolean(FluxConstants.FLUX_COLOR, true);
+            stack.set(FluxDataComponents.FLUX_COLOR, Optional.empty());
         else {
-            stack.getOrCreateTag().putBoolean(FluxConstants.FLUX_COLOR, false);
-            subTag.putInt(FluxConstants.CLIENT_COLOR, getNetwork().getNetworkColor());
+            stack.set(FluxDataComponents.FLUX_COLOR, Optional.of(getNetwork().getNetworkColor()));
         }
-        subTag.putLong(FluxConstants.ENERGY, getTransferBuffer());
+        stack.set(DataComponents.CUSTOM_NAME, Component.literal(getCustomName().isBlank() ? Language.getInstance().getOrDefault(stack.getItem().getDescriptionId()) : getCustomName()));
+        stack.set(FluxDataComponents.STORED_ENERGY, getTransferBuffer());
         return stack;
     }
 

@@ -4,26 +4,24 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.IEnergyStorage;
-import sonar.fluxnetworks.api.FluxCapabilities;
+import net.neoforged.neoforge.capabilities.BlockCapability;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 import sonar.fluxnetworks.api.device.FluxDeviceType;
 import sonar.fluxnetworks.api.device.IFluxPlug;
 import sonar.fluxnetworks.api.energy.IFNEnergyStorage;
 import sonar.fluxnetworks.common.util.FluxGuiStack;
-import sonar.fluxnetworks.common.util.FluxUtils;
 import sonar.fluxnetworks.register.RegistryBlockEntityTypes;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TileFluxPlug extends TileFluxConnector implements IFluxPlug {
 
     private final FluxPlugHandler mHandler = new FluxPlugHandler();
 
-    private final LazyOptional<?>[] mEnergyCaps = new LazyOptional[FluxUtils.DIRECTIONS.length];
+    private final Map<Direction, EnergyStorage> mEnergyStorage = new HashMap<>();
 
     public TileFluxPlug(@Nonnull BlockPos pos, @Nonnull BlockState state) {
         super(RegistryBlockEntityTypes.FLUX_PLUG.get(), pos, state);
@@ -48,33 +46,20 @@ public class TileFluxPlug extends TileFluxConnector implements IFluxPlug {
     }
 
     @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        for (int i = 0, e = mEnergyCaps.length; i < e; i++) {
-            if (mEnergyCaps[i] != null) {
-                mEnergyCaps[i].invalidate();
-                mEnergyCaps[i] = null;
-            }
-        }
+    @SuppressWarnings("NonExtendableApiUsage")
+    public void invalidateCapabilities() {
+        mEnergyStorage.clear();
+        super.invalidateCapabilities();
     }
 
-    @Nonnull
+    @Nullable
     @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
+    public <T> T getEnergyCapability(BlockCapability<T, Direction> cap, @Nullable Direction side) {
         if (!isRemoved()) {
-            if (cap == ForgeCapabilities.ENERGY || cap == FluxCapabilities.FN_ENERGY_STORAGE) {
-                final int index = side == null ? 0 : side.get3DDataValue();
-                LazyOptional<?> handler = mEnergyCaps[index];
-                if (handler == null) {
-                    final EnergyStorage storage = new EnergyStorage(
-                            side == null ? Direction.from3DDataValue(0) : side);
-                    handler = LazyOptional.of(() -> storage);
-                    mEnergyCaps[index] = handler;
-                }
-                return handler.cast();
-            }
+            EnergyStorage storage = mEnergyStorage.computeIfAbsent(side != null ? side : Direction.from3DDataValue(0), EnergyStorage::new);
+            return (T) storage;
         }
-        return super.getCapability(cap, side);
+        return null;
     }
 
     private class EnergyStorage implements IEnergyStorage, IFNEnergyStorage {

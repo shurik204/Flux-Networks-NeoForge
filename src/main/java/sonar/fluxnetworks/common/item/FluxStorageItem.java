@@ -2,7 +2,7 @@ package sonar.fluxnetworks.common.item;
 
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import sonar.fluxnetworks.client.render.FluxStorageItemRenderer;
 
 import javax.annotation.Nonnull;
@@ -17,6 +17,7 @@ public class FluxStorageItem extends FluxDeviceItem {
     @Override
     public void initializeClient(@Nonnull Consumer<IClientItemExtensions> consumer) {
         consumer.accept(new IClientItemExtensions() {
+            @Nonnull
             @Override
             public BlockEntityWithoutLevelRenderer getCustomRenderer() {
                 return new FluxStorageItemRenderer();

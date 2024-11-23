@@ -3,9 +3,8 @@ package sonar.fluxnetworks.register;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegisterEvent;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredItem;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import sonar.fluxnetworks.FluxNetworks;
 import sonar.fluxnetworks.common.item.*;
 
@@ -15,17 +14,21 @@ public class RegistryItems {
     private static final ResourceLocation FLUX_CONFIGURATOR_KEY = FluxNetworks.location("flux_configurator");
     private static final ResourceLocation ADMIN_CONFIGURATOR_KEY = FluxNetworks.location("admin_configurator");
 
-    public static final RegistryObject<BlockItem> FLUX_BLOCK = RegistryObject.create(RegistryBlocks.FLUX_BLOCK_KEY, ForgeRegistries.ITEMS);
-    public static final RegistryObject<FluxDeviceItem> FLUX_PLUG = RegistryObject.create(RegistryBlocks.FLUX_PLUG_KEY, ForgeRegistries.ITEMS);
-    public static final RegistryObject<FluxDeviceItem> FLUX_POINT = RegistryObject.create(RegistryBlocks.FLUX_POINT_KEY, ForgeRegistries.ITEMS);
-    public static final RegistryObject<FluxDeviceItem> FLUX_CONTROLLER = RegistryObject.create(RegistryBlocks.FLUX_CONTROLLER_KEY, ForgeRegistries.ITEMS);
-    public static final RegistryObject<FluxStorageItem> BASIC_FLUX_STORAGE = RegistryObject.create(RegistryBlocks.BASIC_FLUX_STORAGE_KEY, ForgeRegistries.ITEMS);
-    public static final RegistryObject<FluxStorageItem> HERCULEAN_FLUX_STORAGE = RegistryObject.create(RegistryBlocks.HERCULEAN_FLUX_STORAGE_KEY, ForgeRegistries.ITEMS);
-    public static final RegistryObject<FluxStorageItem> GARGANTUAN_FLUX_STORAGE = RegistryObject.create(RegistryBlocks.GARGANTUAN_FLUX_STORAGE_KEY, ForgeRegistries.ITEMS);
-    public static final RegistryObject<FluxDustItem> FLUX_DUST = RegistryObject.create(FLUX_DUST_KEY, ForgeRegistries.ITEMS);
-    public static final RegistryObject<Item> FLUX_CORE = RegistryObject.create(FLUX_CORE_KEY, ForgeRegistries.ITEMS);
-    public static final RegistryObject<ItemFluxConfigurator> FLUX_CONFIGURATOR = RegistryObject.create(FLUX_CONFIGURATOR_KEY, ForgeRegistries.ITEMS);
-    public static final RegistryObject<ItemAdminConfigurator> ADMIN_CONFIGURATOR = RegistryObject.create(ADMIN_CONFIGURATOR_KEY, ForgeRegistries.ITEMS);
+    public static final DeferredItem<BlockItem> FLUX_BLOCK = holder(RegistryBlocks.FLUX_BLOCK_KEY);
+    public static final DeferredItem<FluxDeviceItem> FLUX_PLUG = holder(RegistryBlocks.FLUX_PLUG_KEY);
+    public static final DeferredItem<FluxDeviceItem> FLUX_POINT = holder(RegistryBlocks.FLUX_POINT_KEY);
+    public static final DeferredItem<FluxDeviceItem> FLUX_CONTROLLER = holder(RegistryBlocks.FLUX_CONTROLLER_KEY);
+    public static final DeferredItem<FluxStorageItem> BASIC_FLUX_STORAGE = holder(RegistryBlocks.BASIC_FLUX_STORAGE_KEY);
+    public static final DeferredItem<FluxStorageItem> HERCULEAN_FLUX_STORAGE = holder(RegistryBlocks.HERCULEAN_FLUX_STORAGE_KEY);
+    public static final DeferredItem<FluxStorageItem> GARGANTUAN_FLUX_STORAGE = holder(RegistryBlocks.GARGANTUAN_FLUX_STORAGE_KEY);
+    public static final DeferredItem<FluxDustItem> FLUX_DUST = holder(FLUX_DUST_KEY);
+    public static final DeferredItem<Item> FLUX_CORE = holder(FLUX_CORE_KEY);
+    public static final DeferredItem<ItemFluxConfigurator> FLUX_CONFIGURATOR = holder(FLUX_CONFIGURATOR_KEY);
+    public static final DeferredItem<ItemAdminConfigurator> ADMIN_CONFIGURATOR = holder(ADMIN_CONFIGURATOR_KEY);
+
+    static <T extends Item> DeferredItem<T> holder(ResourceLocation location) {
+        return DeferredItem.createItem(location);
+    }
 
     static void register(RegisterEvent.RegisterHelper<Item> helper) {
         Item.Properties normalProps = new Item.Properties().fireResistant();

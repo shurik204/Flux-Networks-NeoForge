@@ -1,13 +1,13 @@
 package sonar.fluxnetworks.common.util;
 
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.fml.ModList;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 import sonar.fluxnetworks.FluxConfig;
@@ -68,10 +68,8 @@ public final class EnergyUtils {
                 continue;
             }
             try {
-                Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(s));
-                if (block != null) {
-                    BLOCK_BLACKLIST.add(block);
-                }
+                Optional<Block> block = BuiltInRegistries.BLOCK.getOptional(ResourceLocation.parse(s));
+                block.ifPresent(BLOCK_BLACKLIST::add);
             } catch (Exception e) {
                 FluxNetworks.LOGGER.warn(MARKER, "Block blacklist error: {} has incorrect formatting", s, e);
             }
@@ -82,10 +80,8 @@ public final class EnergyUtils {
                 continue;
             }
             try {
-                Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(s));
-                if (item != null) {
-                    ITEM_BLACKLIST.add(item);
-                }
+                Optional<Item> item = BuiltInRegistries.ITEM.getOptional(ResourceLocation.parse(s));
+                item.ifPresent(ITEM_BLACKLIST::add);
             } catch (Exception e) {
                 FluxNetworks.LOGGER.warn(MARKER, "Item blacklist error: {} has incorrect formatting", s, e);
             }

@@ -3,6 +3,7 @@ package sonar.fluxnetworks.client.jei;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
+import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
@@ -21,7 +22,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import org.joml.Quaternionf;
 import sonar.fluxnetworks.FluxNetworks;
 import sonar.fluxnetworks.api.FluxTranslate;
@@ -29,8 +30,10 @@ import sonar.fluxnetworks.register.RegistryBlocks;
 import sonar.fluxnetworks.register.RegistryItems;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 
+@ParametersAreNonnullByDefault
 public class CreatingFluxRecipeCategory implements IRecipeCategory<CreatingFluxRecipe> {
 
     public static final ResourceLocation TEXTURES = FluxNetworks.location(
@@ -77,10 +80,14 @@ public class CreatingFluxRecipeCategory implements IRecipeCategory<CreatingFluxR
         return FluxTranslate.JEI_CREATING_FLUX.getComponent();
     }
 
-    @Nonnull
     @Override
-    public IDrawable getBackground() {
-        return background;
+    public int getWidth() {
+        return background.getWidth();
+    }
+
+    @Override
+    public int getHeight() {
+        return background.getHeight();
     }
 
     @Nonnull
@@ -98,18 +105,18 @@ public class CreatingFluxRecipeCategory implements IRecipeCategory<CreatingFluxR
                 .addItemStack(recipe.output());
     }
 
-    @Nonnull
     @Override
-    public List<Component> getTooltipStrings(@Nonnull CreatingFluxRecipe recipe,
-                                             @Nonnull IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
+    public void getTooltip(ITooltipBuilder tooltip, CreatingFluxRecipe recipe, IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
+        IRecipeCategory.super.getTooltip(tooltip, recipe, recipeSlotsView, mouseX, mouseY);
         if (mouseX >= 40 && mouseX < 80 && mouseY >= 10 && mouseY < 64) {
-            return List.of(
+            tooltip.addAll(
+                List.of(
                     Component.literal("Y+2 = ").append(recipe.crusher().getName()),
                     Component.literal("Y+1 = ").append(recipe.input().getHoverName()),
                     Component.literal("Y+0 = ").append(recipe.base().getName())
+                )
             );
         }
-        return Collections.emptyList();
     }
 
     @Override
@@ -118,6 +125,9 @@ public class CreatingFluxRecipeCategory implements IRecipeCategory<CreatingFluxR
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
         ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
         BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
+
+        // Replaces the old getBackground() method
+        background.draw(guiGraphics);
 
         Quaternionf quat = new Quaternionf();
         quat.rotationXYZ(30 * Mth.DEG_TO_RAD, 45 * Mth.DEG_TO_RAD, 0);

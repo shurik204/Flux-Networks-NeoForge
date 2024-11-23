@@ -1,12 +1,13 @@
 package sonar.fluxnetworks.common.connection;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import sonar.fluxnetworks.api.FluxConstants;
 import sonar.fluxnetworks.api.device.*;
 import sonar.fluxnetworks.api.network.*;
-import sonar.fluxnetworks.common.capability.FluxPlayer;
+import sonar.fluxnetworks.common.data.FluxPlayerData;
 import sonar.fluxnetworks.common.device.TileFluxDevice;
 
 import javax.annotation.Nonnull;
@@ -183,7 +184,7 @@ public class ServerFluxNetwork extends FluxNetwork {
     @Nonnull
     @Override
     public AccessLevel getPlayerAccess(@Nonnull Player player) {
-        if (FluxPlayer.isPlayerSuperAdmin(player)) {
+        if (FluxPlayerData.isPlayerSuperAdmin((ServerPlayer) player)) {
             return AccessLevel.SUPER_ADMIN;
         }
         return super.getPlayerAccess(player);
@@ -214,7 +215,7 @@ public class ServerFluxNetwork extends FluxNetwork {
 
     @Override
     public boolean enqueueConnectionAddition(@Nonnull TileFluxDevice device) {
-        if (device.getDeviceType().isController() && getLogicalDevices(CONTROLLER).size() > 0) {
+        if (device.getDeviceType().isController() && !getLogicalDevices(CONTROLLER).isEmpty()) {
             return false;
         }
         if (!mToAdd.contains(device) && !getLogicalDevices(ANY).contains(device)) {

@@ -11,7 +11,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
 import sonar.fluxnetworks.FluxConfig;
 import sonar.fluxnetworks.FluxNetworks;
-import sonar.fluxnetworks.common.capability.FluxPlayer;
+import sonar.fluxnetworks.common.data.FluxPlayerData;
 import sonar.fluxnetworks.register.Messages;
 
 import javax.annotation.Nonnull;
@@ -43,10 +43,10 @@ public class FluxCommands {
         for (GameProfile profile : profiles) {
             ServerPlayer player = playerList.getPlayer(profile.getId());
             if (player != null) {
-                final FluxPlayer fp = FluxUtils.get(player, FluxPlayer.FLUX_PLAYER);
+                final FluxPlayerData fp = FluxUtils.getPlayerData(player);
                 if (fp != null &&
                         (((fp.isSuperAdmin() || FluxConfig.enableSuperAdmin) && source.hasPermission(3)) ||
-                                (player == source.getEntity() && (fp.isSuperAdmin() || FluxPlayer.canActivateSuperAdmin(player)))) &&
+                                (player == source.getEntity() && (fp.isSuperAdmin() || FluxPlayerData.canActivateSuperAdmin(player)))) &&
                         fp.setSuperAdmin(enable)) {
                     Messages.syncCapability(player);
                     player.sendSystemMessage(Component.translatable(enable ?

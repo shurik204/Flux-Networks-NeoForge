@@ -5,9 +5,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegisterEvent;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredBlock;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import sonar.fluxnetworks.FluxNetworks;
 import sonar.fluxnetworks.common.block.FluxControllerBlock;
 import sonar.fluxnetworks.common.block.FluxPlugBlock;
@@ -23,13 +22,17 @@ public class RegistryBlocks {
     public static final ResourceLocation HERCULEAN_FLUX_STORAGE_KEY = FluxNetworks.location("herculean_flux_storage");
     public static final ResourceLocation GARGANTUAN_FLUX_STORAGE_KEY = FluxNetworks.location("gargantuan_flux_storage");
 
-    public static final RegistryObject<Block> FLUX_BLOCK = RegistryObject.create(FLUX_BLOCK_KEY, ForgeRegistries.BLOCKS);
-    public static final RegistryObject<FluxPlugBlock> FLUX_PLUG = RegistryObject.create(FLUX_PLUG_KEY, ForgeRegistries.BLOCKS);
-    public static final RegistryObject<FluxPointBlock> FLUX_POINT = RegistryObject.create(FLUX_POINT_KEY, ForgeRegistries.BLOCKS);
-    public static final RegistryObject<FluxControllerBlock> FLUX_CONTROLLER = RegistryObject.create(FLUX_CONTROLLER_KEY, ForgeRegistries.BLOCKS);
-    public static final RegistryObject<FluxStorageBlock.Basic> BASIC_FLUX_STORAGE = RegistryObject.create(BASIC_FLUX_STORAGE_KEY, ForgeRegistries.BLOCKS);
-    public static final RegistryObject<FluxStorageBlock.Herculean> HERCULEAN_FLUX_STORAGE = RegistryObject.create(HERCULEAN_FLUX_STORAGE_KEY, ForgeRegistries.BLOCKS);
-    public static final RegistryObject<FluxStorageBlock.Gargantuan> GARGANTUAN_FLUX_STORAGE = RegistryObject.create(GARGANTUAN_FLUX_STORAGE_KEY, ForgeRegistries.BLOCKS);
+    public static final DeferredBlock<Block> FLUX_BLOCK = holder(FLUX_BLOCK_KEY);
+    public static final DeferredBlock<FluxPlugBlock> FLUX_PLUG = holder(FLUX_PLUG_KEY);
+    public static final DeferredBlock<FluxPointBlock> FLUX_POINT = holder(FLUX_POINT_KEY);
+    public static final DeferredBlock<FluxControllerBlock> FLUX_CONTROLLER = holder(FLUX_CONTROLLER_KEY);
+    public static final DeferredBlock<FluxStorageBlock.Basic> BASIC_FLUX_STORAGE = holder(BASIC_FLUX_STORAGE_KEY);
+    public static final DeferredBlock<FluxStorageBlock.Herculean> HERCULEAN_FLUX_STORAGE = holder(HERCULEAN_FLUX_STORAGE_KEY);
+    public static final DeferredBlock<FluxStorageBlock.Gargantuan> GARGANTUAN_FLUX_STORAGE = holder(GARGANTUAN_FLUX_STORAGE_KEY);
+
+    static <T extends Block> DeferredBlock<T> holder(ResourceLocation location) {
+        return DeferredBlock.createBlock(location);
+    }
 
     static void register(RegisterEvent.RegisterHelper<Block> helper) {
         BlockBehaviour.Properties normalProps = BlockBehaviour.Properties.of().mapColor(MapColor.METAL).sound(SoundType.METAL)

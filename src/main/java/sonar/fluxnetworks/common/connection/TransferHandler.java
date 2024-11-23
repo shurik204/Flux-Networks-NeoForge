@@ -4,6 +4,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Mth;
 import sonar.fluxnetworks.api.FluxConstants;
+import sonar.fluxnetworks.common.data.FluxDeviceConfigComponent;
 import sonar.fluxnetworks.common.device.TileFluxDevice;
 
 import javax.annotation.Nonnull;
@@ -240,11 +241,7 @@ public abstract class TransferHandler {
 
     public void readCustomTag(@Nonnull CompoundTag tag, byte type) {
         assert type != FluxConstants.NBT_TILE_SETTINGS;
-        if (tag.contains(FluxConstants.BUFFER)) {
-            mBuffer = tag.getLong(FluxConstants.BUFFER);
-        } else {
-            mBuffer = tag.getLong(FluxConstants.ENERGY);
-        }
+        mBuffer = tag.getLong(FluxConstants.ENERGY);
         switch (type) {
             case FluxConstants.NBT_SAVE_ALL, FluxConstants.NBT_TILE_DROP -> {
                 mPriority = tag.getInt(FluxConstants.PRIORITY);
@@ -308,5 +305,15 @@ public abstract class TransferHandler {
             mChange = buf.readLong();
             mBuffer = buf.readLong();
         }
+    }
+
+    public void applyConfiguration(FluxDeviceConfigComponent configuration, long energy) {
+        mBuffer = energy;
+        mPriority = configuration.getPriority();
+        mSurgeMode = configuration.surgeMode().orElse(false);
+        if (configuration.limit().isPresent()) {
+            mLimit = configuration.limit().get();
+        }
+        mDisableLimit = configuration.disableLimit().orElse(false);
     }
 }

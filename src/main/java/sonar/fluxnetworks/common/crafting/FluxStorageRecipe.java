@@ -1,56 +1,70 @@
 package sonar.fluxnetworks.common.crafting;
 
-import net.minecraft.core.NonNullList;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
-import sonar.fluxnetworks.api.FluxConstants;
+import sonar.fluxnetworks.api.FluxDataComponents;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.List;
+import java.util.function.Function;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class FluxStorageRecipe extends ShapedRecipe {
-
-    public FluxStorageRecipe(ResourceLocation idIn, String groupIn, CraftingBookCategory category, int recipeWidthIn, int recipeHeightIn,
-                             NonNullList<Ingredient> recipeItemsIn, ItemStack recipeOutputIn) {
-        super(idIn, groupIn, category,recipeWidthIn, recipeHeightIn, recipeItemsIn, recipeOutputIn);
+    public FluxStorageRecipe(String group, CraftingBookCategory category, ShapedRecipePattern pattern, ItemStack result, boolean flag) {
+        super(group, category, pattern, result, flag);
     }
 
-    public FluxStorageRecipe(@Nonnull ShapedRecipe recipe) {
-        super(recipe.getId(), recipe.getGroup(), recipe.category(), recipe.getRecipeWidth(), recipe.getRecipeHeight(),
-                recipe.getIngredients(), recipe.getResultItem(RegistryAccess.EMPTY));
+    public FluxStorageRecipe(ShapedRecipe recipe) {
+        super(recipe.getGroup(), recipe.category(), recipe.pattern, recipe.getResultItem(RegistryAccess.EMPTY));
     }
 
-    @Nonnull
     @Override
-    public ItemStack assemble(@Nonnull CraftingContainer container, @Nonnull RegistryAccess registryAccess) {
-        long totalEnergy = 0;
-        int networkID = -1;
-        for (int i = 0; i < container.getContainerSize(); i++) {
-            ItemStack stack = container.getItem(i);
-            CompoundTag subTag = stack.getTagElement(FluxConstants.TAG_FLUX_DATA);
-            if (subTag != null) {
-                if (networkID == -1) {
-                    networkID = subTag.getInt(FluxConstants.NETWORK_ID);
-                }
-                totalEnergy += subTag.getLong(FluxConstants.ENERGY);
-            }
+    @SuppressWarnings("DataFlowIssue")
+    public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
+        ItemStack result = super.assemble(input, registries);
+        // Find all flux storage items in the input
+        List<ItemStack> storageItems = input.items().stream().filter(stack -> !stack.isEmpty() && stack.get(FluxDataComponents.STORED_ENERGY) != null).toList();
+        // If none found, bail
+        if (storageItems.isEmpty()) {
+            return result;
         }
-        ItemStack stack = getResultItem(registryAccess).copy();
-        if (totalEnergy > 0 || networkID != -1) {
-            CompoundTag subTag = stack.getOrCreateTagElement(FluxConstants.TAG_FLUX_DATA);
-            if (networkID != -1)
-                subTag.putInt(FluxConstants.NETWORK_ID, networkID);
-            if (totalEnergy > 0)
-                subTag.putLong(FluxConstants.ENERGY, totalEnergy);
-        }
-        return stack;
+        // Sum the energy of all storage items
+        long totalEnergy = storageItems.stream().map(stack -> stack.get(FluxDataComponents.STORED_ENERGY)).reduce(0L, Long::sum);
+        // Put the total energy value into the resulting item
+        result.set(FluxDataComponents.STORED_ENERGY, totalEnergy);
+        // Copy device configuration from the first storage item (if present)
+        result.copyFrom(storageItems.getFirst(), FluxDataComponents.FLUX_CONFIG);
+
+        return result;
     }
 
-    @Nonnull
     public RecipeSerializer<?> getSerializer() {
-        return FluxStorageRecipeSerializer.INSTANCE;
+        return Serializer.INSTANCE;
+    }
+
+    public static class Serializer implements RecipeSerializer<FluxStorageRecipe> {
+        public static final Serializer INSTANCE = new Serializer();
+
+        public static final MapCodec<FluxStorageRecipe> CODEC = RecipeSerializer.SHAPED_RECIPE.codec().xmap(FluxStorageRecipe::new, Function.identity());
+        public static final StreamCodec<RegistryFriendlyByteBuf, FluxStorageRecipe> STREAM_CODEC = RecipeSerializer.SHAPED_RECIPE.streamCodec().map(FluxStorageRecipe::new, Function.identity());
+
+        @Override
+        public MapCodec<FluxStorageRecipe> codec() {
+            return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, FluxStorageRecipe> streamCodec() {
+            return STREAM_CODEC;
+        }
+
+        private Serializer() {}
     }
 }

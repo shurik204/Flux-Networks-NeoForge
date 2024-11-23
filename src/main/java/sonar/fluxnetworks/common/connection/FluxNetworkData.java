@@ -2,16 +2,17 @@ package sonar.fluxnetworks.common.connection;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.*;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import sonar.fluxnetworks.FluxConfig;
 import sonar.fluxnetworks.FluxNetworks;
 import sonar.fluxnetworks.api.FluxConstants;
 import sonar.fluxnetworks.api.network.SecurityLevel;
-import sonar.fluxnetworks.common.capability.FluxPlayer;
+import sonar.fluxnetworks.common.data.FluxPlayerData;
 import sonar.fluxnetworks.register.Channel;
 import sonar.fluxnetworks.register.Messages;
 
@@ -58,7 +59,7 @@ public final class FluxNetworkData extends SavedData {
     private FluxNetworkData() {
     }
 
-    private FluxNetworkData(@Nonnull CompoundTag tag) {
+    private FluxNetworkData(@Nonnull CompoundTag tag, HolderLookup.Provider registries) {
         read(tag);
     }
 
@@ -67,7 +68,7 @@ public final class FluxNetworkData extends SavedData {
         if (data == null) {
             ServerLevel level = ServerLifecycleHooks.getCurrentServer().overworld();
             data = level.getDataStorage()
-                    .computeIfAbsent(FluxNetworkData::new, FluxNetworkData::new, NETWORK_DATA);
+                    .computeIfAbsent(new Factory<>(FluxNetworkData::new, FluxNetworkData::new), NETWORK_DATA);
             FluxNetworks.LOGGER.debug("FluxNetworkData has been successfully loaded");
         }
         return data;
@@ -104,10 +105,10 @@ public final class FluxNetworkData extends SavedData {
     }*/
 
     @Nullable
-    public FluxNetwork createNetwork(@Nonnull Player creator, @Nonnull String name, int color,
+    public FluxNetwork createNetwork(@Nonnull ServerPlayer creator, @Nonnull String name, int color,
                                      @Nonnull SecurityLevel security, @Nonnull String password) {
         final int max = FluxConfig.maximumPerPlayer;
-        if (max != -1 && !FluxPlayer.isPlayerSuperAdmin(creator)) {
+        if (max != -1 && !FluxPlayerData.isPlayerSuperAdmin(creator)) {
             if (max <= 0) {
                 return null;
             }
@@ -172,7 +173,7 @@ public final class FluxNetworkData extends SavedData {
 
     @Nonnull
     @Override
-    public CompoundTag save(@Nonnull CompoundTag compound) {
+    public CompoundTag save(@Nonnull CompoundTag compound, HolderLookup.Provider registries) {
         compound.putInt(UNIQUE_ID, mUniqueID);
 
         ListTag list = new ListTag();

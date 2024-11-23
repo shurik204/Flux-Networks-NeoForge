@@ -27,11 +27,11 @@ public abstract class GuiFocusable extends AbstractContainerScreen<FluxMenu> {
 
     public static final int TEXTURE_SIZE = 512;
 
-    public static final ResourceLocation BACKGROUND = new ResourceLocation(
+    public static final ResourceLocation BACKGROUND = ResourceLocation.fromNamespaceAndPath(
             FluxNetworks.MODID, "textures/gui/gui_background.png");
-    public static final ResourceLocation FRAME = new ResourceLocation(
+    public static final ResourceLocation FRAME = ResourceLocation.fromNamespaceAndPath(
             FluxNetworks.MODID, "textures/gui/gui_frame.png");
-    public static final ResourceLocation ICON = new ResourceLocation(
+    public static final ResourceLocation ICON = ResourceLocation.fromNamespaceAndPath(
             FluxNetworks.MODID, "textures/gui/gui_icon.png");
 
     public GuiFocusable(FluxMenu menu, @Nonnull Player player) {
@@ -89,11 +89,11 @@ public abstract class GuiFocusable extends AbstractContainerScreen<FluxMenu> {
     @Override
     protected void containerTick() {
         super.containerTick();
-        for (GuiEventListener child : children()) {
-            if (child instanceof FluxEditBox editBox) {
-                editBox.tick();
-            }
-        }
+//        for (GuiEventListener child : children()) {
+//            if (child instanceof FluxEditBox editBox) {
+//                editBox.tick();
+//            }
+//        }
     }
 
     protected void blitBackgroundOrFrame(@Nonnull GuiGraphics gr) {
@@ -115,13 +115,11 @@ public abstract class GuiFocusable extends AbstractContainerScreen<FluxMenu> {
     public static void blitF(Matrix4f matrix, float x, float y, float z, float width, float height,
                              float minU, float minV, float maxU, float maxV) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        BufferBuilder builder = Tesselator.getInstance().getBuilder();
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        builder.vertex(matrix, x + width, y, z).uv(maxU, minV).endVertex();
-        builder.vertex(matrix, x, y, z).uv(minU, minV).endVertex();
-        builder.vertex(matrix, x, y + height, z).uv(minU, maxV).endVertex();
-        builder.vertex(matrix, x + width, y + height, z).uv(maxU, maxV).endVertex();
-        var buffer = builder.end();
-        BufferUploader.drawWithShader(buffer);
+        BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        builder.addVertex(matrix, x + width, y, z).setUv(maxU, minV);
+        builder.addVertex(matrix, x, y, z).setUv(minU, minV);
+        builder.addVertex(matrix, x, y + height, z).setUv(minU, maxV);
+        builder.addVertex(matrix, x + width, y + height, z).setUv(maxU, maxV);
+        BufferUploader.drawWithShader(builder.buildOrThrow());
     }
 }

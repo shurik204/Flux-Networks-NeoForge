@@ -5,19 +5,22 @@ import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import sonar.fluxnetworks.api.FluxConstants;
+import sonar.fluxnetworks.api.FluxDataComponents;
 import sonar.fluxnetworks.client.gui.basic.GuiFluxCore;
+import sonar.fluxnetworks.common.data.FluxDeviceConfigComponent;
 import sonar.fluxnetworks.common.device.TileFluxDevice;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Optional;
 
 /**
  * Render network color on blocks and items.
@@ -131,41 +134,32 @@ public class FluxColorHandler implements BlockColor, ItemColor {
     public int getColor(@Nonnull ItemStack stack, int tintIndex) {
         // called every frame
         if (tintIndex == 1) {
-            CompoundTag tag = stack.getTag();
-            if (tag != null && tag.getBoolean(FluxConstants.FLUX_COLOR)) {
-                /*if (FluxConfig.enableGuiDebug && FluxNetworks.modernUILoaded) {
-                    return NavigationHome.network.isInvalid() ? NO_NETWORK_COLOR : NavigationHome.network.getSetting
-                    (NetworkSettings.NETWORK_COLOR) | 0xff000000;
-                }*/
-                Screen screen = Minecraft.getInstance().screen;
-                if (screen instanceof GuiFluxCore gui) {
-                    return gui.getNetwork().getNetworkColor();
-                }
-            }
-            tag = stack.getTagElement(FluxConstants.TAG_FLUX_DATA);
-            if (tag != null) {
-                return ClientCache.getNetwork(tag.getInt(FluxConstants.NETWORK_ID)).getNetworkColor();
-            }
-            return FluxConstants.INVALID_NETWORK_COLOR;
+            return FluxColorHandler.getColorForItem(stack);
         }
         return ~0;
     }
 
     public static int colorMultiplierForConfigurator(ItemStack stack, int tintIndex) {
-        if (tintIndex == 1) {
-            /*Screen screen = Minecraft.getInstance().currentScreen;
-            if (screen instanceof GuiFluxCore) {
-                GuiFluxCore gui = (GuiFluxCore) screen;
-                if (gui.getContainer().bridge instanceof ItemFluxConfigurator.MenuBridge) {
-                    return gui.network.getNetworkColor();
-                }
-            }*/
-            CompoundTag tag = stack.getTagElement(FluxConstants.TAG_FLUX_CONFIG);
-            if (tag != null) {
-                return ClientCache.getNetwork(tag.getInt(FluxConstants.NETWORK_ID)).getNetworkColor();
-            }
-            return FluxConstants.INVALID_NETWORK_COLOR;
+        return tintIndex == 1 ? FastColor.ARGB32.opaque(getColorForItem(stack)) : -1;
+    }
+
+    public static int getColorForItem(ItemStack stack) {
+        // 1. Check if the color is defined in the stack
+        Optional<Integer> forcedColor = stack.get(FluxDataComponents.FLUX_COLOR);
+        if (forcedColor != null && forcedColor.isPresent()) {
+            return forcedColor.get();
         }
-        return ~0;
+        // 2. If the item has a saved configuration, use network color
+        FluxDeviceConfigComponent data = stack.get(FluxDataComponents.FLUX_CONFIG);
+        if (data != null) {
+            return ClientCache.getNetwork(data.networkId()).getNetworkColor();
+        }
+        // 3. Try grabbing color from the current screen
+        Screen screen = Minecraft.getInstance().screen;
+        if (screen instanceof GuiFluxCore gui) {
+            return gui.getNetwork().getNetworkColor();
+        }
+        // 4. If all else fails, use the default color
+        return FluxConstants.INVALID_NETWORK_COLOR;
     }
 }

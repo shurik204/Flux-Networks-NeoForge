@@ -7,7 +7,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -15,17 +14,17 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.event.*;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.server.ServerStoppedEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.server.ServerStoppedEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import sonar.fluxnetworks.FluxConfig;
 import sonar.fluxnetworks.FluxNetworks;
 import sonar.fluxnetworks.api.FluxConstants;
-import sonar.fluxnetworks.common.capability.FluxPlayer;
-import sonar.fluxnetworks.common.capability.FluxPlayerProvider;
+import sonar.fluxnetworks.common.data.FluxPlayerData;
 import sonar.fluxnetworks.common.connection.FluxNetwork;
 import sonar.fluxnetworks.common.connection.FluxNetworkData;
 import sonar.fluxnetworks.common.util.FluxCommands;
@@ -34,7 +33,7 @@ import sonar.fluxnetworks.common.util.FluxUtils;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-@Mod.EventBusSubscriber(modid = FluxNetworks.MODID)
+@EventBusSubscriber(modid = FluxNetworks.MODID)
 public class EventHandler {
 
     //// SERVER EVENTS \\\\
@@ -46,10 +45,8 @@ public class EventHandler {
     }
 
     @SubscribeEvent
-    public static void onServerTick(@Nonnull TickEvent.ServerTickEvent event) {
-        if (event.phase == TickEvent.Phase.END) {
-            FluxNetworkData.getAllNetworks().forEach(FluxNetwork::onEndServerTick);
-        }
+    public static void onServerTick(@Nonnull ServerTickEvent.Post event) {
+        FluxNetworkData.getAllNetworks().forEach(FluxNetwork::onEndServerTick);
     }
 
     //// WORLD EVENTS \\\\
@@ -113,7 +110,7 @@ public class EventHandler {
                 level.playSound(null, pos, SoundEvents.DRAGON_FIREBALL_EXPLODE, SoundSource.BLOCKS, 1.0f, 1.0f);
             } else {
                 level.setBlock(pos.below(), crusher, Block.UPDATE_ALL);
-                level.playSound(null, pos, SoundEvents.GENERIC_EXPLODE, SoundSource.BLOCKS, 1.0f, 1.0f);
+                level.playSound(null, pos, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.BLOCKS, 1.0f, 1.0f);
             }
             int particleCount = Mth.clamp(itemCount >> 2, 4, 64);
             level.sendParticles(ParticleTypes.LAVA, pos.getX() + 0.5, pos.getY(),
@@ -145,34 +142,28 @@ public class EventHandler {
     @SubscribeEvent
     public static void onPlayerJoined(@Nonnull PlayerEvent.PlayerLoggedInEvent event) {
         // this event only fired on server
+        if (event.getEntity().level().isClientSide) return;
         Channel.get().sendToPlayer(Messages.updateNetwork(
                 FluxNetworkData.getAllNetworks(), FluxConstants.NBT_NET_BASIC), event.getEntity());
-        Messages.syncCapability(event.getEntity());
+        Messages.syncCapability((ServerPlayer) event.getEntity());
     }
 
-    @SubscribeEvent
-    public static void onAttachCapability(@Nonnull AttachCapabilitiesEvent<Entity> event) {
-        // make server only
-        if (event.getObject() instanceof ServerPlayer) {
-            var provider = new FluxPlayerProvider();
-            event.addCapability(FluxPlayerProvider.CAP_KEY, provider);
-            // XXX: no invalidation should not be a problem
-            //event.addListener(provider);
-        }
-    }
+//    @SubscribeEvent
+//    public static void onAttachCapability(@Nonnull RegisterCapabilitiesEvent event) {
+//        // make server only
+//        if (event.getObject() instanceof ServerPlayer) {
+//            var provider = new FluxPlayerProvider();
+//            event.addCapability(FluxPlayerProvider.CAP_KEY, provider);
+//            // XXX: no invalidation should not be a problem
+//            //event.addListener(provider);
+//        }
+//    }
 
     @SubscribeEvent
     public static void onPlayerClone(@Nonnull PlayerEvent.Clone event) {
         // server only event
-        event.getOriginal().reviveCaps();
-        FluxPlayer oFluxPlayer = FluxUtils.get(event.getOriginal(), FluxPlayer.FLUX_PLAYER);
-        if (oFluxPlayer != null) {
-            FluxPlayer nFluxPlayer = FluxUtils.get(event.getEntity(), FluxPlayer.FLUX_PLAYER);
-            if (nFluxPlayer != null) {
-                nFluxPlayer.set(oFluxPlayer);
-            }
-        }
-        event.getOriginal().invalidateCaps();
+        FluxPlayerData newData = FluxUtils.getPlayerData((ServerPlayer) event.getEntity());
+        newData.copy(FluxUtils.getPlayerData((ServerPlayer) event.getOriginal()));
     }
 
     @SubscribeEvent

@@ -7,19 +7,26 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.capabilities.BlockCapability;
+import net.neoforged.neoforge.capabilities.ItemCapability;
 import sonar.fluxnetworks.api.FluxTranslate;
 import sonar.fluxnetworks.api.device.FluxDeviceType;
 import sonar.fluxnetworks.api.device.IFluxDevice;
 import sonar.fluxnetworks.api.energy.EnergyType;
+import sonar.fluxnetworks.common.data.FluxPlayerData;
 import sonar.fluxnetworks.common.connection.FluxNetwork;
+import sonar.fluxnetworks.register.DataAttachments;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
 
+@ParametersAreNonnullByDefault
 public class FluxUtils {
 
     private static final double[] COMPACT_SCALE = new double[]{0.001D, 0.000_001D, 0.000_000_001D, 0.000_000_000_001D,
@@ -156,7 +163,7 @@ public class FluxUtils {
     @Nonnull
     public static GlobalPos readGlobalPos(@Nonnull CompoundTag tag) {
         return GlobalPos.of(ResourceKey.create(Registries.DIMENSION,
-                        new ResourceLocation(tag.getString("dim"))),
+                        ResourceLocation.parse(tag.getString("dim"))),
                 new BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z")));
     }
 
@@ -328,16 +335,31 @@ public class FluxUtils {
         return cap(player.getCapability(capability));
     }*/
 
+//    @Nullable
+//    @SuppressWarnings("ConstantConditions")
+//    public static <T> T get(@Nonnull ICapabilityProvider provider, @Nonnull Capability<T> cap) {
+//        return provider.getCapability(cap).orElse(null);
+//    }
+
+    @Nonnull
+    public static FluxPlayerData getPlayerData(ServerPlayer player) {
+        return player.getData(DataAttachments.PLAYER_DATA);
+    }
+
+//    @Nullable
+//    @SuppressWarnings("ConstantConditions")
+//    public static <T> T get(@Nonnull ICapabilityProvider provider, @Nonnull Capability<T> cap, Direction side) {
+//        return provider.getCapability(cap, side).orElse(null);
+//    }
+
     @Nullable
-    @SuppressWarnings("ConstantConditions")
-    public static <T> T get(@Nonnull ICapabilityProvider provider, @Nonnull Capability<T> cap) {
-        return provider.getCapability(cap).orElse(null);
+    public static <T> T get(@Nonnull BlockEntity target, @Nonnull BlockCapability<T, Direction> cap, Direction side) {
+        return cap.getCapability(target.getLevel(), target.getBlockPos(), target.getBlockState(), target, side);
     }
 
     @Nullable
-    @SuppressWarnings("ConstantConditions")
-    public static <T> T get(@Nonnull ICapabilityProvider provider, @Nonnull Capability<T> cap, Direction side) {
-        return provider.getCapability(cap, side).orElse(null);
+    public static <T> T get(@Nonnull ItemStack stack, ItemCapability<T, Void> cap) {
+        return stack.getCapability(cap);
     }
 
     public static float getRed(int color) {

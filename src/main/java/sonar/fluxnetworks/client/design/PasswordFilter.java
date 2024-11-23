@@ -2,8 +2,8 @@ package sonar.fluxnetworks.client.design;
 
 import icyllis.modernui.text.InputFilter;
 import icyllis.modernui.text.Spanned;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import sonar.fluxnetworks.common.connection.FluxNetwork;
 import sonar.fluxnetworks.common.util.FluxUtils;
 

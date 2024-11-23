@@ -5,11 +5,11 @@ import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.*;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import sonar.fluxnetworks.api.FluxConstants;
 import sonar.fluxnetworks.api.device.IFluxDevice;
 import sonar.fluxnetworks.api.network.*;
-import sonar.fluxnetworks.common.capability.FluxPlayer;
+import sonar.fluxnetworks.common.data.FluxPlayerData;
 import sonar.fluxnetworks.common.device.TileFluxDevice;
 import sonar.fluxnetworks.common.util.FluxUtils;
 
@@ -397,7 +397,7 @@ public class FluxNetwork {
             for (ServerPlayer p : players) {
                 if (getMemberByUUID(p.getUUID()) == null) {
                     CompoundTag subTag = new CompoundTag();
-                    NetworkMember.create(p, FluxPlayer.isPlayerSuperAdmin(p) ?
+                    NetworkMember.create(p, FluxPlayerData.isPlayerSuperAdmin(p) ?
                                     AccessLevel.SUPER_ADMIN : AccessLevel.BLOCKED)
                             .writeNBT(subTag);
                     list.add(subTag);

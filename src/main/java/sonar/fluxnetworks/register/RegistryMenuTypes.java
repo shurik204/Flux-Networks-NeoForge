@@ -1,14 +1,14 @@
 package sonar.fluxnetworks.register;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.extensions.IForgeMenuType;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegisterEvent;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import sonar.fluxnetworks.FluxNetworks;
 import sonar.fluxnetworks.api.FluxConstants;
 import sonar.fluxnetworks.common.connection.FluxMenu;
@@ -22,10 +22,10 @@ import sonar.fluxnetworks.common.item.ItemFluxConfigurator;
  */
 public class RegistryMenuTypes {
     public static final ResourceLocation FLUX_MENU_KEY = FluxNetworks.location("flux_menu");
-    public static final RegistryObject<MenuType<FluxMenu>> FLUX_MENU = RegistryObject.create(FLUX_MENU_KEY, ForgeRegistries.MENU_TYPES);
+    public static final DeferredHolder<MenuType<?>, MenuType<FluxMenu>> FLUX_MENU = DeferredHolder.create(BuiltInRegistries.MENU.key(), FLUX_MENU_KEY);
 
     static void register(RegisterEvent.RegisterHelper<MenuType<?>> helper) {
-        helper.register(FLUX_MENU_KEY, IForgeMenuType.create((containerId, inventory, buffer) -> {
+        helper.register(FLUX_MENU_KEY, IMenuTypeExtension.create((containerId, inventory, buffer) -> {
             // check if it's tile entity
             if (buffer.readBoolean()) {
                 BlockPos pos = buffer.readBlockPos();
