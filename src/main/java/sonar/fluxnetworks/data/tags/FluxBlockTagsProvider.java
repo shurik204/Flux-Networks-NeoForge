@@ -3,10 +3,12 @@ package sonar.fluxnetworks.data.tags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import sonar.fluxnetworks.FluxNetworks;
 import sonar.fluxnetworks.register.RegistryBlocks;
+import sonar.fluxnetworks.register.RegistryTags;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -30,5 +32,12 @@ public class FluxBlockTagsProvider extends BlockTagsProvider {
                 .add(RegistryBlocks.BASIC_FLUX_STORAGE.get())
                 .add(RegistryBlocks.HERCULEAN_FLUX_STORAGE.get())
                 .add(RegistryBlocks.GARGANTUAN_FLUX_STORAGE.get());
+
+        tag(RegistryTags.FLUX_RECIPE_BASE_BLOCK)
+                .add(Blocks.BEDROCK)
+                .add(RegistryBlocks.FLUX_BLOCK.get());
+
+        tag(RegistryTags.FLUX_RECIPE_CRUSHER_BLOCK)
+                .add(Blocks.OBSIDIAN);
     }
 }

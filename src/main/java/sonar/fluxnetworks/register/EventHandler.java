@@ -77,10 +77,8 @@ public class EventHandler {
         ServerLevel level = (ServerLevel) event.getLevel();
         BlockPos pos = event.getPos();
         BlockState crusher = level.getBlockState(pos);
-        BlockState base;
-        if (crusher.getBlock() == Blocks.OBSIDIAN &&
-                ((base = level.getBlockState(pos.below(2))).getBlock() == Blocks.BEDROCK ||
-                        base.getBlock() == RegistryBlocks.FLUX_BLOCK.get())) {
+        if (crusher.is(RegistryTags.FLUX_RECIPE_CRUSHER_BLOCK) &&
+                level.getBlockState(pos.below(2)).is(RegistryTags.FLUX_RECIPE_BASE_BLOCK)) {
             List<ItemEntity> entities = level.getEntitiesOfClass(ItemEntity.class, new AABB(pos.below()));
             if (entities.isEmpty()) {
                 return;

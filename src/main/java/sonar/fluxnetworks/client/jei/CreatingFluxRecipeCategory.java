@@ -17,17 +17,17 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.*;
-import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import org.joml.Quaternionf;
 import sonar.fluxnetworks.FluxNetworks;
 import sonar.fluxnetworks.api.FluxTranslate;
-import sonar.fluxnetworks.register.RegistryBlocks;
 import sonar.fluxnetworks.register.RegistryItems;
+import sonar.fluxnetworks.register.RegistryTags;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -56,10 +56,18 @@ public class CreatingFluxRecipeCategory implements IRecipeCategory<CreatingFluxR
     @Nonnull
     public static List<CreatingFluxRecipe> getRecipes() {
         List<CreatingFluxRecipe> recipes = new ArrayList<>();
-        recipes.add(new CreatingFluxRecipe(Blocks.BEDROCK, Blocks.OBSIDIAN,
-                new ItemStack(Items.REDSTONE), new ItemStack(RegistryItems.FLUX_DUST.get())));
-        recipes.add(new CreatingFluxRecipe(RegistryBlocks.FLUX_BLOCK.get(), Blocks.OBSIDIAN,
-                new ItemStack(Items.REDSTONE), new ItemStack(RegistryItems.FLUX_DUST.get())));
+        BuiltInRegistries.BLOCK.getTagOrEmpty(RegistryTags.FLUX_RECIPE_BASE_BLOCK)
+                .forEach(base -> {
+            BuiltInRegistries.BLOCK.getTagOrEmpty(RegistryTags.FLUX_RECIPE_CRUSHER_BLOCK)
+                    .forEach(crusher -> {
+                recipes.add(new CreatingFluxRecipe(base.value(), crusher.value(),
+                        new ItemStack(Items.REDSTONE), new ItemStack(RegistryItems.FLUX_DUST.get())));
+            });
+        });
+//        recipes.add(new CreatingFluxRecipe(Blocks.BEDROCK, Blocks.OBSIDIAN,
+//                new ItemStack(Items.REDSTONE), new ItemStack(RegistryItems.FLUX_DUST.get())));
+//        recipes.add(new CreatingFluxRecipe(RegistryBlocks.FLUX_BLOCK.get(), Blocks.OBSIDIAN,
+//                new ItemStack(Items.REDSTONE), new ItemStack(RegistryItems.FLUX_DUST.get())));
         return recipes;
     }
 
