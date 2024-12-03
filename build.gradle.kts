@@ -14,26 +14,26 @@ version = "mod.version"()
 group = "mod.group_id"()
 
 repositories {
-    mavenLocal()
-    // JEI
-    maven("https://modmaven.dev/mezz/jei/jei-1.21.1-neoforge/")
     maven("https://maven.k-4u.nl") // The One Probe
-    maven("https://modmaven.dev/") // JEI, Mekanism
-    maven("https://maven.izzel.io/releases/") // Modern UI
     maven("https://maven.gtceu.com") { // GregTech CEu Modern
         content { includeGroup("com.gregtechceu.gtceu") }
     }
     maven("https://maven.firstdarkdev.xyz/snapshots") // LDLib (For GT:CEuM)
+    maven("https://maven.izzel.io/releases/") { // Modern UI
+        content { includeGroup("icyllis.modernui") }
+    }
     maven("https://maven.ithundxr.dev/snapshots") { // Registrate 1.20.4+
         content { includeGroup("com.tterrag.registrate") }
-    }
-    maven("https://cursemaven.com") {
-        content { includeGroup("curse.maven") }
     }
     maven("https://maven.octo-studios.com/releases") { // Curios
         content { includeGroup("top.theillusivec4.curios") }
     }
+    maven("https://cursemaven.com") {
+        content { includeGroup("curse.maven") }
+    }
+    maven("https://modmaven.dev/") // JEI, Mekanism
     mavenCentral()
+    mavenLocal()
 }
 
 base {
@@ -142,8 +142,8 @@ sourceSets.main.configure {
 // This configuration should be used instead of 'runtimeOnly' to declare
 // a dependency that will be present for runtime testing but that is
 // "optional", meaning it will not be pulled by dependents of this mod.
-val localRuntime = configurations.register("localRuntime") {
-    extendsFrom(configurations.runtimeOnly.get())
+val localRuntime = configurations.create("localRuntime") {
+    configurations.getByName("runtimeClasspath").extendsFrom(this)
 }
 
 dependencies {
@@ -179,14 +179,22 @@ dependencies {
         exclude("com.ibm.icu", "icu4j")
         exclude("it.unimi.dsi", "fastutil")
     }
-    implementation("icyllis.modernui:ModernUI-Core:${"deps.modernui_core"()}") {
+    additionalRuntimeClasspath(compileOnly("icyllis.modernui:ModernUI-Core:${"deps.modernui_core"()}") {
         exclude("org.apache.logging.log4j", "log4j-core")
         exclude("org.apache.logging.log4j", "log4j-api")
         exclude("com.google.code.findbugs", "jsr305")
         exclude("org.jetbrains", "annotations")
         exclude("com.ibm.icu", "icu4j")
         exclude("it.unimi.dsi", "fastutil")
-    }
+    })
+    additionalRuntimeClasspath(compileOnly("icyllis.modernui:ModernUI-Markdown:${"deps.modernui_core"()}") {
+        exclude("org.apache.logging.log4j", "log4j-core")
+        exclude("org.apache.logging.log4j", "log4j-api")
+        exclude("com.google.code.findbugs", "jsr305")
+        exclude("org.jetbrains", "annotations")
+        exclude("com.ibm.icu", "icu4j")
+        exclude("it.unimi.dsi", "fastutil")
+    })
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
