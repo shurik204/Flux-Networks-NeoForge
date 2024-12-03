@@ -2,7 +2,6 @@ package sonar.fluxnetworks.register;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
@@ -215,15 +214,15 @@ public class ClientMessages {
         sChannel.sendToServer(buf);
     }
 
-    static void msg(short index, FriendlyByteBuf payload, Supplier<LocalPlayer> player) {
-        Minecraft minecraft = Minecraft.getInstance();
+    static void msg(short index, FriendlyByteBuf payload, Supplier<LocalPlayer> player,
+                    BlockableEventLoop<?> looper) {
         switch (index) {
-            case Messages.S2C_DEVICE_BUFFER -> onDeviceBuffer(payload, player, minecraft);
-            case Messages.S2C_RESPONSE -> onResponse(payload, player, minecraft);
-            case Messages.S2C_CAPABILITY -> onCapability(payload, player, minecraft);
-            case Messages.S2C_UPDATE_NETWORK -> onUpdateNetwork(payload, player, minecraft);
-            case Messages.S2C_DELETE_NETWORK -> onDeleteNetwork(payload, player, minecraft);
-            case Messages.S2C_UPDATE_CONNECTIONS -> onUpdateConnections(payload, player, minecraft);
+            case Messages.S2C_DEVICE_BUFFER -> onDeviceBuffer(payload, player, looper);
+            case Messages.S2C_RESPONSE -> onResponse(payload, player, looper);
+            case Messages.S2C_CAPABILITY -> onCapability(payload, player, looper);
+            case Messages.S2C_UPDATE_NETWORK -> onUpdateNetwork(payload, player, looper);
+            case Messages.S2C_DELETE_NETWORK -> onDeleteNetwork(payload, player, looper);
+            case Messages.S2C_UPDATE_CONNECTIONS -> onUpdateConnections(payload, player, looper);
         }
         payload.release();
     }

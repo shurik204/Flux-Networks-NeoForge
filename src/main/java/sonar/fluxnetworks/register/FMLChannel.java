@@ -1,13 +1,11 @@
 package sonar.fluxnetworks.register;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.EncoderException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.VarInt;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -32,8 +30,9 @@ public class FMLChannel extends Channel {
         event.registrar(PROTOCOL).playToClient(
                 S2CMessage.TYPE,
                 S2CMessage.CODEC,
-                (msg, ctx) ->
-                        ClientMessages.msg(msg.data.readShort(), msg.data, () -> (LocalPlayer) ctx.player())
+                (msg, ctx) -> ClientMessages.msg(msg.data.readShort(), msg.data,
+                        () -> (LocalPlayer) ctx.player(),
+                        ctx.listener().getMainThreadEventLoop())
         );
     }
 
@@ -42,8 +41,9 @@ public class FMLChannel extends Channel {
         event.registrar(PROTOCOL).playToServer(
                 C2SMessage.TYPE,
                 C2SMessage.CODEC,
-                (msg, ctx) ->
-                        Messages.msg(msg.data.readShort(), msg.data, () -> (ServerPlayer) ctx.player())
+                (msg, ctx) -> Messages.msg(msg.data.readShort(), msg.data,
+                        () -> (ServerPlayer) ctx.player(),
+                        ctx.listener().getMainThreadEventLoop())
         );
     }
 
@@ -64,75 +64,49 @@ public class FMLChannel extends Channel {
 
     @Override
     public void sendToAll(@Nonnull FriendlyByteBuf payload) {
-        ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers().forEach(
-                p -> p.connection.send(new S2CMessage(payload))
-        );
+        final var packet = new ClientboundCustomPayloadPacket(new S2CMessage(payload));
+        ServerLifecycleHooks.getCurrentServer().getPlayerList().broadcastAll(packet);
     }
 
     @Override
     public void sendToTrackingChunk(@Nonnull FriendlyByteBuf payload, @Nonnull LevelChunk chunk) {
-        final S2CMessage packet = new S2CMessage(payload);
+        final var packet = new ClientboundCustomPayloadPacket(new S2CMessage(payload));
         ((ServerLevel) chunk.getLevel()).getChunkSource().chunkMap.getPlayers(
                 chunk.getPos(), /* boundaryOnly */ false).forEach(p -> p.connection.send(packet));
     }
 
+    public static final StreamCodec<FriendlyByteBuf, FriendlyByteBuf> BYTE_BUFFER_CODEC = new StreamCodec<>() {
+        @Nonnull
+        @Override
+        public FriendlyByteBuf decode(@Nonnull FriendlyByteBuf source) {
+            return new FriendlyByteBuf(source.readRetainedSlice(source.readableBytes()));
+        }
 
+        @Override
+        public void encode(@Nonnull FriendlyByteBuf target, @Nonnull FriendlyByteBuf source) {
+            target.writeBytes(source.slice());
+        }
+    };
 
     // A 🩼 to use plain byte buffers for Client<=>Server communication
     // Define a custom payload with a type of byte buffer
     public record S2CMessage(FriendlyByteBuf data) implements CustomPacketPayload {
-        public static final CustomPacketPayload.Type<S2CMessage> TYPE = new CustomPacketPayload.Type<>(FluxNetworks.location("network_s2c"));
-        public static final StreamCodec<ByteBuf, S2CMessage> CODEC = StreamCodec.composite(
-                // Max payload size is 1 MiB. Should be more than enough
-                byteBufferCodec(1048576), S2CMessage::data, S2CMessage::new
+        public static final Type<S2CMessage> TYPE = new Type<>(FluxNetworks.location("s2c_packet"));
+        public static final StreamCodec<FriendlyByteBuf, S2CMessage> CODEC = StreamCodec.composite(
+                BYTE_BUFFER_CODEC, S2CMessage::data, S2CMessage::new
         );
-
-        public S2CMessage(ByteBuf data) { this(new FriendlyByteBuf(data)); }
 
         @Override
         public Type<? extends CustomPacketPayload> type() { return TYPE; }
     }
 
     public record C2SMessage(FriendlyByteBuf data) implements CustomPacketPayload {
-        public static final CustomPacketPayload.Type<C2SMessage> TYPE = new CustomPacketPayload.Type<>(FluxNetworks.location("network_c2s"));
-        public static final StreamCodec<ByteBuf, C2SMessage> CODEC = StreamCodec.composite(
-                // Max payload size is 1 MiB. Should be more than enough
-                byteBufferCodec(1048576), C2SMessage::data, C2SMessage::new
+        public static final Type<C2SMessage> TYPE = new Type<>(FluxNetworks.location("c2s_packet"));
+        public static final StreamCodec<FriendlyByteBuf, C2SMessage> CODEC = StreamCodec.composite(
+                BYTE_BUFFER_CODEC, C2SMessage::data, C2SMessage::new
         );
-
-        public C2SMessage(ByteBuf data) { this(new FriendlyByteBuf(data)); }
 
         @Override
         public Type<? extends CustomPacketPayload> type() { return TYPE; }
-    }
-
-    // Adapted from ByteBufCodecs.byteArray codec
-    private static StreamCodec<ByteBuf, ByteBuf> byteBufferCodec(final int maxSize) {
-        return new StreamCodec<>() {
-            public ByteBuf decode(ByteBuf payload) {
-                // When we need to read data from payload, we slice the buffer
-                int size = VarInt.read(payload);
-                if (size > maxSize) {
-                    throw new EncoderException("ByteArray with size " + size + " is bigger than allowed " + maxSize);
-                } else {
-                    var data = payload.retainedSlice(payload.readerIndex(), size);
-                    // Skip the bytes we just "read", otherwise minecraft will get upset
-                    payload.skipBytes(size);
-                    return data;
-                }
-            }
-
-            public void encode(ByteBuf payload, ByteBuf data) {
-                // When writing data, we store the length and copy bytes to the payload
-                data.resetReaderIndex(); // TODO: Do we need to reset the reader index?
-                int length = data.readableBytes();
-                if (length > maxSize) {
-                    throw new EncoderException("ByteBuf with size " + length + " is bigger than allowed " + maxSize);
-                } else {
-                    VarInt.write(payload, length);
-                    payload.writeBytes(data);
-                }
-            }
-        };
     }
 }

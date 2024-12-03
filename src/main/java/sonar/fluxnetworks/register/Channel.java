@@ -1,5 +1,6 @@
 package sonar.fluxnetworks.register;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,7 +21,9 @@ public abstract class Channel {
 
     @Nonnull
     static FriendlyByteBuf buffer(int index) {
-        return new FriendlyByteBuf(Unpooled.copyShort(index));
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeShort(index);
+        return new FriendlyByteBuf(buf);
     }
 
     public static Channel get() {

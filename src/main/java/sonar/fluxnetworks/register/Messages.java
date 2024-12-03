@@ -6,11 +6,9 @@ import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.thread.BlockableEventLoop;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import sonar.fluxnetworks.FluxNetworks;
 import sonar.fluxnetworks.api.FluxConstants;
 import sonar.fluxnetworks.api.device.IFluxDevice;
@@ -198,22 +196,22 @@ public class Messages {
         sChannel.sendToAll(buf);
     }
 
-    static void msg(short index, FriendlyByteBuf payload, Supplier<ServerPlayer> player) {
-        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+    static void msg(short index, FriendlyByteBuf payload, Supplier<ServerPlayer> player,
+                    BlockableEventLoop<?> looper) {
         switch (index) {
-            case C2S_DEVICE_BUFFER -> onDeviceBuffer(payload, player, server);
-            case C2S_SUPER_ADMIN -> onSuperAdmin(payload, player, server);
-            case C2S_CREATE_NETWORK -> onCreateNetwork(payload, player, server);
-            case C2S_DELETE_NETWORK -> onDeleteNetwork(payload, player, server);
-            case C2S_EDIT_TILE -> onEditTile(payload, player, server);
-            case C2S_TILE_NETWORK -> onTileNetwork(payload, player, server);
-            case C2S_EDIT_MEMBER -> onEditMember(payload, player, server);
-            case C2S_EDIT_NETWORK -> onEditNetwork(payload, player, server);
-            case C2S_EDIT_CONNECTION -> onEditConnection(payload, player, server);
-            case C2S_UPDATE_NETWORK -> onUpdateNetwork(payload, player, server);
-            case C2S_WIRELESS_MODE -> onWirelessMode(payload, player, server);
-            case C2S_DISCONNECT -> onDisconnect(payload, player, server);
-            case C2S_UPDATE_CONNECTIONS -> onUpdateConnections(payload, player, server);
+            case C2S_DEVICE_BUFFER -> onDeviceBuffer(payload, player, looper);
+            case C2S_SUPER_ADMIN -> onSuperAdmin(payload, player, looper);
+            case C2S_CREATE_NETWORK -> onCreateNetwork(payload, player, looper);
+            case C2S_DELETE_NETWORK -> onDeleteNetwork(payload, player, looper);
+            case C2S_EDIT_TILE -> onEditTile(payload, player, looper);
+            case C2S_TILE_NETWORK -> onTileNetwork(payload, player, looper);
+            case C2S_EDIT_MEMBER -> onEditMember(payload, player, looper);
+            case C2S_EDIT_NETWORK -> onEditNetwork(payload, player, looper);
+            case C2S_EDIT_CONNECTION -> onEditConnection(payload, player, looper);
+            case C2S_UPDATE_NETWORK -> onUpdateNetwork(payload, player, looper);
+            case C2S_WIRELESS_MODE -> onWirelessMode(payload, player, looper);
+            case C2S_DISCONNECT -> onDisconnect(payload, player, looper);
+            case C2S_UPDATE_CONNECTIONS -> onUpdateConnections(payload, player, looper);
             default -> kick(player.get(), new RuntimeException("Unidentified message index " + index));
         }
         payload.release();
