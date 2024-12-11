@@ -8,6 +8,7 @@ import net.minecraft.network.codec.StreamCodec;
 import sonar.fluxnetworks.api.FluxConstants;
 import sonar.fluxnetworks.common.util.CodecsExtras;
 
+import javax.annotation.Nonnull;
 import java.util.Optional;
 
 public record FluxDeviceConfigComponent(int networkId, Optional<String> customName, Optional<Integer> priority, Optional<Boolean> surgeMode, Optional<Long> limit, Optional<Boolean> disableLimit) {
@@ -64,7 +65,7 @@ public record FluxDeviceConfigComponent(int networkId, Optional<String> customNa
         return new FluxDeviceConfigComponent(networkId, customName, priority, surgeMode, limit, disableLimit);
     }
 
-    public FluxDeviceConfigComponent withNetworkAndName(int networkId, String name) {
+    public FluxDeviceConfigComponent withNetworkAndName(int networkId, @Nonnull String name) {
         return new FluxDeviceConfigComponent(networkId, Optional.of(name), priority, surgeMode, limit, disableLimit);
     }
 }

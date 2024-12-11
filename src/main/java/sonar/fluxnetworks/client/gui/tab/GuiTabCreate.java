@@ -49,8 +49,8 @@ public class GuiTabCreate extends GuiTabEditAbstract {
 
         mCreate = new SimpleButton(this, leftPos + (imageWidth / 2) - 24, topPos + 150, 48, 12,
                 FluxTranslate.CREATE.get());
-        mCreate.setClickable(false);
         mButtons.add(mCreate);
+        onEditSettingsChanged();
     }
 
     @Override

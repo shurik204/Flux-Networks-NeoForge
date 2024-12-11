@@ -32,9 +32,12 @@ public class FluxDeviceItem extends BlockItem {
     public Component getName(ItemStack stack) {
         FluxDeviceConfigComponent component = stack.get(FluxDataComponents.FLUX_CONFIG);
         if (component != null) {
-            Optional<String> value = component.customName();
-            if (value.isPresent()) {
-                return Component.literal(value.get());
+            Optional<String> customName = component.customName();
+            if (customName.isPresent()) {
+                String value = customName.get();
+                if (!value.isEmpty()) {
+                    return Component.literal(value);
+                }
             }
         }
         return super.getName(stack);
