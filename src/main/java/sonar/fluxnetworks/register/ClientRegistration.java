@@ -2,6 +2,7 @@ package sonar.fluxnetworks.register;
 
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.player.LocalPlayer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -27,7 +28,10 @@ public class ClientRegistration {
 
     @SubscribeEvent
     public static void setup(FMLClientSetupEvent event) {
-
+        Channel.get().setS2CMessageHandler((index, payload, context) -> ClientMessages.msg(
+                index, payload, () -> (LocalPlayer) context.player(),
+                context.listener().getMainThreadEventLoop()
+        ));
     }
 
     @SubscribeEvent

@@ -3,6 +3,7 @@ package sonar.fluxnetworks.register;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
+import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.InterModComms;
 import net.neoforged.fml.ModList;
@@ -12,6 +13,7 @@ import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.world.chunk.RegisterTicketControllersEvent;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import sonar.fluxnetworks.FluxNetworks;
 import sonar.fluxnetworks.common.integration.TOPIntegration;
@@ -25,10 +27,23 @@ import javax.annotation.Nonnull;
 
 @EventBusSubscriber(modid = FluxNetworks.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class Registration {
+
     @SubscribeEvent
     public static void setup(FMLCommonSetupEvent event) {
-        Channel.sChannel = new FMLChannel();
+        Channel.get().setC2SMessageHandler((index, payload, context) -> Messages.msg(
+                index, payload, () -> (ServerPlayer) context.player(),
+                context.listener().getMainThreadEventLoop()
+        ));
         EnergyUtils.register();
+    }
+
+    @SubscribeEvent
+    public static void registerPayloadHandler(RegisterPayloadHandlersEvent event) {
+        event.registrar(Channel.PROTOCOL).playBidirectional(
+                Channel.Message.TYPE,
+                Channel.Message.CODEC,
+                Channel.Message::handle
+        );
     }
 
     @SubscribeEvent

@@ -58,7 +58,7 @@ import static sonar.fluxnetworks.register.Channel.sChannel;
 public class Messages {
 
     /**
-     * C->S message indices, must be sequential, 0-based indexing
+     * C->S message indices, must be 0..65535
      */
     static final int C2S_DEVICE_BUFFER = 0;
     static final int C2S_SUPER_ADMIN = 1;
@@ -80,15 +80,15 @@ public class Messages {
     static final int C2S_TRACK_STATISTICS = 17;
 
     /**
-     * S->C message indices, must be sequential, 0-based indexing
+     * S->C message indices, must be 0..65535
      */
-    static final int S2C_DEVICE_BUFFER = 0;
-    static final int S2C_RESPONSE = 1;
-    static final int S2C_CAPABILITY = 2;
-    static final int S2C_UPDATE_NETWORK = 3;
-    static final int S2C_DELETE_NETWORK = 4;
-    static final int S2C_UPDATE_CONNECTIONS = 5;
-    static final int S2C_UPDATE_MEMBERS = 6;
+    static final int S2C_DEVICE_BUFFER = 256;
+    static final int S2C_RESPONSE = 257;
+    static final int S2C_CAPABILITY = 258;
+    static final int S2C_UPDATE_NETWORK = 259;
+    static final int S2C_DELETE_NETWORK = 260;
+    static final int S2C_UPDATE_CONNECTIONS = 261;
+    static final int S2C_UPDATE_MEMBERS = 262;
 
     /**
      * Byte stream.
@@ -196,7 +196,7 @@ public class Messages {
         sChannel.sendToAll(buf);
     }
 
-    static void msg(short index, FriendlyByteBuf payload, Supplier<ServerPlayer> player,
+    static void msg(int index, FriendlyByteBuf payload, Supplier<ServerPlayer> player,
                     BlockableEventLoop<?> looper) {
         switch (index) {
             case C2S_DEVICE_BUFFER -> onDeviceBuffer(payload, player, looper);

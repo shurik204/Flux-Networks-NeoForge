@@ -214,7 +214,7 @@ public class ClientMessages {
         sChannel.sendToServer(buf);
     }
 
-    static void msg(short index, FriendlyByteBuf payload, Supplier<LocalPlayer> player,
+    static void msg(int index, FriendlyByteBuf payload, Supplier<LocalPlayer> player,
                     BlockableEventLoop<?> looper) {
         switch (index) {
             case Messages.S2C_DEVICE_BUFFER -> onDeviceBuffer(payload, player, looper);
