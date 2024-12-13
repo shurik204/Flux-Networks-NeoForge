@@ -18,7 +18,7 @@ import sonar.fluxnetworks.client.gui.GuiFluxDeviceHome;
 import sonar.fluxnetworks.client.render.FluxStorageEntityRenderer;
 import sonar.fluxnetworks.common.connection.FluxMenu;
 import sonar.fluxnetworks.common.device.TileFluxDevice;
-import sonar.fluxnetworks.common.integration.MUIIntegration;
+import sonar.fluxnetworks.client.mui.MUIIntegration;
 
 import javax.annotation.Nonnull;
 

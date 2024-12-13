@@ -6,6 +6,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import org.lwjgl.glfw.GLFW;
+import sonar.fluxnetworks.client.mui.MUIIntegration;
 import sonar.fluxnetworks.common.util.FluxUtils;
 
 import javax.annotation.Nonnull;
@@ -59,16 +60,20 @@ public abstract class GuiPopupCore<T extends GuiFluxCore> extends GuiFocusable {
     public void drawBackgroundLayer(@Nonnull GuiGraphics gr, int mouseX, int mouseY, float deltaTicks) {
         mAlpha = Math.min(1.0f, mAlpha + deltaTicks / 6); // animation duration is (1000/20*6)=300ms
 
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, mAlpha);
-        RenderSystem.setShaderTexture(0, BACKGROUND);
-        blitBackgroundOrFrame(gr);
+        if (useModernDesign()) {
+            MUIIntegration.drawBackgroundAndFrame(gr, width, height, mHost.getNetwork().getNetworkColor(), mAlpha);
+        } else {
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, mAlpha);
+            RenderSystem.setShaderTexture(0, BACKGROUND);
+            blitBackgroundOrFrame(gr);
 
-        int color = mHost.getNetwork().getNetworkColor();
-        RenderSystem.setShaderColor(FluxUtils.getRed(color), FluxUtils.getGreen(color), FluxUtils.getBlue(color), mAlpha);
-        RenderSystem.setShaderTexture(0, FRAME);
-        blitBackgroundOrFrame(gr);
+            int color = mHost.getNetwork().getNetworkColor();
+            RenderSystem.setShaderColor(FluxUtils.getRed(color), FluxUtils.getGreen(color), FluxUtils.getBlue(color), mAlpha);
+            RenderSystem.setShaderTexture(0, FRAME);
+            blitBackgroundOrFrame(gr);
+        }
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 
         // dimmer

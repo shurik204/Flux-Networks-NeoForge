@@ -20,7 +20,6 @@ import sonar.fluxnetworks.client.widget.ColorButton;
 import sonar.fluxnetworks.client.widget.ColorPicker;
 import sonar.fluxnetworks.client.widget.ColorPicker.OnColorChangeListener;
 import sonar.fluxnetworks.common.connection.FluxNetwork;
-import sonar.fluxnetworks.common.integration.MUIIntegration;
 import sonar.fluxnetworks.register.ClientMessages;
 
 import javax.annotation.Nonnull;

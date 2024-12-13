@@ -16,7 +16,9 @@ import sonar.fluxnetworks.api.FluxConstants;
 import sonar.fluxnetworks.api.FluxTranslate;
 import sonar.fluxnetworks.api.energy.EnergyType;
 import sonar.fluxnetworks.client.gui.EnumNavigationTab;
+import sonar.fluxnetworks.client.gui.basic.GuiFocusable;
 import sonar.fluxnetworks.client.gui.basic.GuiTabCore;
+import sonar.fluxnetworks.client.mui.MUIIntegration;
 import sonar.fluxnetworks.common.connection.*;
 import sonar.fluxnetworks.common.util.FluxUtils;
 import sonar.fluxnetworks.register.ClientMessages;
@@ -176,34 +178,38 @@ public class GuiTabStatistics extends GuiTabCore {
         public void drawChart(Minecraft mc, GuiGraphics gr, float deltaTicks) {
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
+            if (GuiFocusable.useModernDesign()) {
+                MUIIntegration.drawChartLinesAndPoints(gr, x, currentHeight);
+                gr.pose().translate(0, 0, 1);
+            } else {
+                BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+                RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
-            BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-            RenderSystem.setShader(GameRenderer::getPositionColorShader);
+                float hw = 1;
+                for (int i = 0; i < currentHeight.size() - 1; i++) {
+                    float lx = x + 20 * i;
+                    float ly = currentHeight.getFloat(i);
+                    float rx = x + 20 * (i + 1);
+                    float ry = currentHeight.getFloat(i + 1);
+                    Matrix4f matrix = gr.pose().last().pose();
+                    builder.addVertex(matrix, rx, ry - hw, 0).setColor(255, 255, 255, 255);
+                    builder.addVertex(matrix, lx, ly - hw, 0).setColor(255, 255, 255, 255);
+                    builder.addVertex(matrix, lx, ly + hw, 0).setColor(255, 255, 255, 255);
+                    builder.addVertex(matrix, rx, ry + hw, 0).setColor(255, 255, 255, 255);
+                }
 
-            float hw = 1;
-            for (int i = 0; i < currentHeight.size() - 1; i++) {
-                float lx = x + 20 * i;
-                float ly = currentHeight.getFloat(i);
-                float rx = x + 20 * (i + 1);
-                float ry = currentHeight.getFloat(i + 1);
-                Matrix4f matrix = gr.pose().last().pose();
-                builder.addVertex(matrix, rx, ry - hw, 0).setColor(255, 255, 255, 255);
-                builder.addVertex(matrix, lx, ly - hw, 0).setColor(255, 255, 255, 255);
-                builder.addVertex(matrix, lx, ly + hw, 0).setColor(255, 255, 255, 255);
-                builder.addVertex(matrix, rx, ry + hw, 0).setColor(255, 255, 255, 255);
+                hw = 2;
+                for (int i = 0; i < currentHeight.size(); i++) {
+                    float cx = x + 20 * i;
+                    float cy = currentHeight.getFloat(i);
+                    Matrix4f matrix = gr.pose().last().pose();
+                    builder.addVertex(matrix, cx + hw, cy - hw, 0).setColor(255, 255, 255, 255);
+                    builder.addVertex(matrix, cx - hw, cy - hw, 0).setColor(255, 255, 255, 255);
+                    builder.addVertex(matrix, cx - hw, cy + hw, 0).setColor(255, 255, 255, 255);
+                    builder.addVertex(matrix, cx + hw, cy + hw, 0).setColor(255, 255, 255, 255);
+                }
+                BufferUploader.drawWithShader(builder.buildOrThrow());
             }
-
-            hw = 2;
-            for (int i = 0; i < currentHeight.size(); i++) {
-                float cx = x + 20 * i;
-                float cy = currentHeight.getFloat(i);
-                Matrix4f matrix = gr.pose().last().pose();
-                builder.addVertex(matrix, cx + hw, cy - hw, 0).setColor(255, 255, 255, 255);
-                builder.addVertex(matrix, cx - hw, cy - hw, 0).setColor(255, 255, 255, 255);
-                builder.addVertex(matrix, cx - hw, cy + hw, 0).setColor(255, 255, 255, 255);
-                builder.addVertex(matrix, cx + hw, cy + hw, 0).setColor(255, 255, 255, 255);
-            }
-            BufferUploader.drawWithShader(builder.buildOrThrow());
 
             gr.fill(x - 16, y + height, x + 116, y + height + 1, 0xcfffffff);
             gr.fill(x - 14, y - 6, x - 13, y + height + 3, 0xcfffffff);

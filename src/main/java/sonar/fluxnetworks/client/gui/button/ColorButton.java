@@ -16,10 +16,10 @@ public class ColorButton extends GuiButtonCore {
 
     @Override
     protected void drawButton(GuiGraphics gr, int mouseX, int mouseY, float deltaTicks) {
+        gr.fill(x, y, x + width, y + height, mColor | 0xAA000000);
         if (mSelected) {
             drawOuterFrame(gr, x, y, width, height, 0xFFFFFFFF);
         }
-        gr.fill(x, y, x + width, y + height, mColor | 0xAA000000);
     }
 
     public boolean isSelected() {

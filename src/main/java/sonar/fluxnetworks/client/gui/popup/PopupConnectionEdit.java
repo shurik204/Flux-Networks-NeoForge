@@ -98,9 +98,9 @@ public class PopupConnectionEdit extends GuiPopupCore<GuiTabConnections> {
         mEditPriority = new Checkbox(this, leftPos + 10, topPos + 50);
         mEditLimit = new Checkbox(this, leftPos + 10, topPos + 67);
 
-        mEditSurgeMode = new Checkbox(this, leftPos + 10, topPos + 82);
-        mEditDisableLimit = new Checkbox(this, leftPos + 10, topPos + 94);
-        mEditChunkLoading = new Checkbox(this, leftPos + 10, topPos + 106);
+        mEditSurgeMode = new Checkbox(this, leftPos + 10, topPos + 83);
+        mEditDisableLimit = new Checkbox(this, leftPos + 10, topPos + 95);
+        mEditChunkLoading = new Checkbox(this, leftPos + 10, topPos + 107);
 
         mButtons.add(mEditCustomName);
         mButtons.add(mEditPriority);

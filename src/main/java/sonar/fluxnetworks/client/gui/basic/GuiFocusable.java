@@ -12,6 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
+import sonar.fluxnetworks.FluxConfig;
 import sonar.fluxnetworks.FluxNetworks;
 import sonar.fluxnetworks.client.gui.EnumNavigationTab;
 import sonar.fluxnetworks.client.gui.button.FluxEditBox;
@@ -121,5 +122,9 @@ public abstract class GuiFocusable extends AbstractContainerScreen<FluxMenu> {
         builder.addVertex(matrix, x, y + height, z).setUv(minU, maxV);
         builder.addVertex(matrix, x + width, y + height, z).setUv(maxU, maxV);
         BufferUploader.drawWithShader(builder.buildOrThrow());
+    }
+
+    public static boolean useModernDesign() {
+        return FluxNetworks.isModernUILoaded() && FluxConfig.enableModernDesign;
     }
 }

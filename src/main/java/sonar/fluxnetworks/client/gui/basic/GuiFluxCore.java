@@ -16,7 +16,7 @@ import sonar.fluxnetworks.client.ClientCache;
 import sonar.fluxnetworks.common.connection.FluxMenu;
 import sonar.fluxnetworks.common.connection.FluxNetwork;
 import sonar.fluxnetworks.common.device.TileFluxDevice;
-import sonar.fluxnetworks.common.integration.MUIIntegration;
+import sonar.fluxnetworks.client.mui.MUIIntegration;
 import sonar.fluxnetworks.common.item.ItemAdminConfigurator;
 import sonar.fluxnetworks.common.util.FluxUtils;
 import sonar.fluxnetworks.register.ClientMessages;
@@ -47,7 +47,7 @@ public abstract class GuiFluxCore extends GuiPopupHost {
     private void onResponse(FluxMenu menu, int key, int code) {
         final FluxTranslate t = FluxTranslate.fromResponseCode(code);
         if (t != null) {
-            if (FluxNetworks.isModernUILoaded()) {
+            if (useModernDesign()) {
                 MUIIntegration.showToastError(t);
             } else {
                 getMinecraft().getToasts().addToast(SystemToast.multiline(getMinecraft(),
@@ -99,16 +99,20 @@ public abstract class GuiFluxCore extends GuiPopupHost {
     @Override
     protected void drawBackgroundLayer(GuiGraphics gr, int mouseX, int mouseY, float deltaTicks) {
         super.drawBackgroundLayer(gr, mouseX, mouseY, deltaTicks);
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        RenderSystem.setShaderTexture(0, BACKGROUND);
-        blitBackgroundOrFrame(gr);
+        if (useModernDesign()) {
+            MUIIntegration.drawBackgroundAndFrame(gr, width, height, mNetwork.getNetworkColor(), 1.0f);
+        } else {
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+            RenderSystem.setShaderTexture(0, BACKGROUND);
+            blitBackgroundOrFrame(gr);
 
-        int color = mNetwork.getNetworkColor();
-        RenderSystem.setShaderColor(FluxUtils.getRed(color), FluxUtils.getGreen(color), FluxUtils.getBlue(color), 1.0f);
-        RenderSystem.setShaderTexture(0, FRAME);
-        blitBackgroundOrFrame(gr);
+            int color = mNetwork.getNetworkColor();
+            RenderSystem.setShaderColor(FluxUtils.getRed(color), FluxUtils.getGreen(color), FluxUtils.getBlue(color), 1.0f);
+            RenderSystem.setShaderTexture(0, FRAME);
+            blitBackgroundOrFrame(gr);
+        }
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
     }
 

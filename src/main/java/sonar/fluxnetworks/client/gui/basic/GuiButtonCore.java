@@ -1,6 +1,7 @@
 package sonar.fluxnetworks.client.gui.basic;
 
 import net.minecraft.client.gui.GuiGraphics;
+import sonar.fluxnetworks.client.mui.MUIIntegration;
 
 public abstract class GuiButtonCore {
 
@@ -36,9 +37,13 @@ public abstract class GuiButtonCore {
     }
 
     public static void drawOuterFrame(GuiGraphics gr, int x, int y, int width, int height, int color) {
-        gr.fill(x - 1, y - 1, x + width + 1, y, color);
-        gr.fill(x - 1, y + height, x + width + 1, y + height + 1, color);
-        gr.fill(x - 1, y, x, y + height, color);
-        gr.fill(x + width, y, x + width + 1, y + height, color);
+        if (GuiFocusable.useModernDesign()) {
+            MUIIntegration.drawOuterFrame(gr, x, y, width, height, color);
+        } else {
+            gr.fill(x - 1, y - 1, x + width + 1, y, color);
+            gr.fill(x - 1, y + height, x + width + 1, y + height + 1, color);
+            gr.fill(x - 1, y, x, y + height, color);
+            gr.fill(x + width, y, x + width + 1, y + height, color);
+        }
     }
 }

@@ -72,7 +72,7 @@ public class FluxConfig {
         }
     }
 
-    public static boolean enableButtonSound, enableGuiDebug;
+    public static boolean enableButtonSound, enableGuiDebug, enableModernDesign;
     public static boolean enableOneProbeBasicInfo, enableOneProbeAdvancedInfo, enableOneProbeSneaking;
     public static boolean enableFluxRecipe, enableChunkLoading, enableSuperAdmin;
     public static long defaultLimit, basicCapacity, basicTransfer, herculeanCapacity, herculeanTransfer,
@@ -85,6 +85,7 @@ public class FluxConfig {
 
         private final ModConfigSpec.BooleanValue mEnableButtonSound;
         private final ModConfigSpec.BooleanValue mEnableGuiDebug;
+        private final ModConfigSpec.BooleanValue mEnableModernDesign;
 
         private Client(@Nonnull ModConfigSpec.Builder builder) {
             builder.push("gui");
@@ -93,8 +94,11 @@ public class FluxConfig {
                     .translation(FluxNetworks.MODID + ".config." + "enableButtonSound")
                     .define("enableButtonSound", true);
             mEnableGuiDebug = builder
-                    .comment("Enable Modern UI")
+                    .comment("Enable ModernUI")
                     .define("enableGuiDebug", false);
+            mEnableModernDesign = builder
+                    .comment("Enable Modern Design for classic GUI when ModernUI is installed")
+                    .define("enableModernDesign", true);
 
             builder.pop();
         }
@@ -102,6 +106,7 @@ public class FluxConfig {
         private void load() {
             enableButtonSound = mEnableButtonSound.get();
             enableGuiDebug = mEnableGuiDebug.get();
+            enableModernDesign = mEnableModernDesign.get();
         }
     }
 

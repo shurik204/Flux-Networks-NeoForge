@@ -1,12 +1,13 @@
 package sonar.fluxnetworks.client.gui.button;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.*;
 import net.minecraft.util.FormattedCharSequence;
+import sonar.fluxnetworks.client.gui.basic.GuiFocusable;
+import sonar.fluxnetworks.client.mui.MUIIntegration;
 
 import javax.annotation.Nonnull;
 
@@ -62,11 +63,15 @@ public class FluxEditBox extends EditBox {
     public void renderWidget(@Nonnull GuiGraphics gr, int mouseX, int mouseY, float deltaTicks) {
         Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
         if (isVisible()) {
-            gr.fill(getX() - mHeaderWidth, getY(), getX() + width, getY() + height, 0x30000000);
-            gr.fill(getX() - mHeaderWidth - 1, getY() - 1, getX() + width + 1, getY(), mOutlineColor);
-            gr.fill(getX() - mHeaderWidth - 1, getY() + height, getX() + width + 1, getY() + height + 1, mOutlineColor);
-            gr.fill(getX() - mHeaderWidth - 1, getY(), getX() - mHeaderWidth, getY() + height, mOutlineColor);
-            gr.fill(getX() + width, getY(), getX() + width + 1, getY() + height, mOutlineColor);
+            if (GuiFocusable.useModernDesign()) {
+                MUIIntegration.drawEditBoxBorder(gr, getX() - mHeaderWidth, getY(), width + mHeaderWidth, height, mOutlineColor);
+            } else {
+                gr.fill(getX() - mHeaderWidth, getY(), getX() + width, getY() + height, 0x30000000);
+                gr.fill(getX() - mHeaderWidth - 1, getY() - 1, getX() + width + 1, getY(), mOutlineColor);
+                gr.fill(getX() - mHeaderWidth - 1, getY() + height, getX() + width + 1, getY() + height + 1, mOutlineColor);
+                gr.fill(getX() - mHeaderWidth - 1, getY(), getX() - mHeaderWidth, getY() + height, mOutlineColor);
+                gr.fill(getX() + width, getY(), getX() + width + 1, getY() + height, mOutlineColor);
+            }
         }
 
         gr.pose().pushPose();
