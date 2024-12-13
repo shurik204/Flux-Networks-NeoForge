@@ -213,8 +213,11 @@ public abstract class GuiPopupHost extends GuiFocusable {
     }
 
     @Override
-    public final void render(@Nonnull GuiGraphics gr, int mouseX, int mouseY, float deltaTicks) {
-        super.render(gr, mouseX, mouseY, deltaTicks);
+    public final void render(@Nonnull GuiGraphics gr, int mouseX, int mouseY, float partialTick) {
+        super.render(gr, mouseX, mouseY, partialTick);
+        // The last parameter should be partialTick, but there was a bug in Vanilla that passed it
+        // as deltaTicks, NeoForge fixed it. But we do need deltaTicks instead of partialTick...
+        float deltaTicks = getMinecraft().getTimer().getRealtimeDeltaTicks();
         drawForegroundLayer(gr, mouseX, mouseY, deltaTicks);
 
         if (mCurrentPopup != null) {
@@ -232,9 +235,9 @@ public abstract class GuiPopupHost extends GuiFocusable {
     }
 
     @Override
-    protected final void renderBg(@Nonnull GuiGraphics gr, float partialTicks, int mouseX, int mouseY) {
-        // renderBackground(gr, mouseX, mouseY, partialTicks); // Stack overflow
-        drawBackgroundLayer(gr, mouseX, mouseY, partialTicks);
+    protected final void renderBg(@Nonnull GuiGraphics gr, float partialTick, int mouseX, int mouseY) {
+        float deltaTicks = getMinecraft().getTimer().getRealtimeDeltaTicks();
+        drawBackgroundLayer(gr, mouseX, mouseY, deltaTicks);
     }
 
     @Override
